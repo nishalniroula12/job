@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route } from "react-router-dom";
 import Home from '../pages/Home'
 import Job from '../pages/Job';
+import Company from '../pages/Company';
 
 const Mainroute = () => {
   return (
@@ -9,6 +10,7 @@ const Mainroute = () => {
         <Routes>
             <Route path='/' element={<Home/>}/>
             <Route path='/job' element={<Job/>}/>
+            <Route path='/company' element={<Company/>}/>
 
         </Routes>
       

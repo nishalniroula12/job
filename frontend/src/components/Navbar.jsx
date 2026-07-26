@@ -134,7 +134,7 @@ export default function Navbar() {
                 </a>
 
                 <a
-                  href="/companies"
+                  href="/company"
                   className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
                 >
                   Companies
@@ -215,10 +215,7 @@ export default function Navbar() {
                   />
                 </svg>
 
-                <span className="hidden md:inline">
-                  Search
-                </span>
-
+               
               </button>
 
             </div>
@@ -233,7 +230,7 @@ export default function Navbar() {
                 href="/post-job"
                 className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
               >
-                Post a Job
+                Profile
               </a>
 
               <a
@@ -344,14 +341,14 @@ export default function Navbar() {
             {/* MOBILE LINKS */}
 
             <a
-              href="/"
+              href="/job"
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
             >
-              Find Jobs
+               Jobs
             </a>
 
             <a
-              href="/companies"
+              href="/company"
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
             >
               Companies
