@@ -218,7 +218,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-3 shrink-0">
 
               <a
-                href="/post-job"
+                href="/profile"
                 className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
               >
                 Profile
