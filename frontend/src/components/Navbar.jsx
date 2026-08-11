@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   // =========================================
@@ -15,19 +15,14 @@ export default function Navbar() {
   const [location, setLocation] = useState("");
 
   // =========================================
-  // SEARCH RESULT
+  // NAVIGATION
   // =========================================
-  const [jobs, setJobs] = useState([]);
+  const nav = useNavigate();
 
   // =========================================
   // MODAL STATE
   // =========================================
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // =========================================
-  // LOADING
-  // =========================================
-  const [loading, setLoading] = useState(false);
 
   // =========================================
   // OPEN SEARCH MODAL
@@ -46,37 +41,33 @@ export default function Navbar() {
   // =========================================
   // SEARCH JOBS
   // =========================================
-  const fetchSearch = async () => {
-    try {
-      setLoading(true);
+  const fetchSearch = () => {
+    // Create URL query parameters
+    const params = new URLSearchParams();
 
-      const res = await api.get("/allget", {
-        params: {
-          job: search,
-          experience: experience,
-          location: location,
-        },
-      });
-
-      console.log("Search Response:", res.data);
-
-      // Save jobs
-      setJobs(res.data);
-
-      // Close modal
-      setIsModalOpen(false);
-
-      // Close mobile menu
-      setIsOpen(false);
-    } catch (error) {
-      console.log("Search Error:", error);
-
-      if (error.response) {
-        console.log("Backend Error:", error.response.data);
-      }
-    } finally {
-      setLoading(false);
+    // Add keyword
+    if (search.trim()) {
+      params.append("title", search.trim());
     }
+
+    // Add experience
+    if (experience) {
+      params.append("experience", experience);
+    }
+
+    // Add location
+    if (location.trim()) {
+      params.append("location", location.trim());
+    }
+
+    // Close modal
+    setIsModalOpen(false);
+
+    // Close mobile menu
+    setIsOpen(false);
+
+    // Redirect to AllJob page
+    nav(`/alljob?${params.toString()}`);
   };
 
   // =========================================
@@ -86,7 +77,6 @@ export default function Navbar() {
     setSearch("");
     setExperience("");
     setLocation("");
-    setJobs([]);
   };
 
   return (
@@ -97,6 +87,7 @@ export default function Navbar() {
 
       <nav className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
           <div className="flex items-center justify-between h-16 gap-4">
 
             {/* ================================================= */}
@@ -104,6 +95,7 @@ export default function Navbar() {
             {/* ================================================= */}
 
             <div className="flex items-center gap-8">
+
               {/* LOGO */}
 
               <a
@@ -130,7 +122,7 @@ export default function Navbar() {
                   href="/job"
                   className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
                 >
-                   Jobs
+                  Jobs
                 </a>
 
                 <a
@@ -215,7 +207,6 @@ export default function Navbar() {
                   />
                 </svg>
 
-               
               </button>
 
             </div>
@@ -344,7 +335,7 @@ export default function Navbar() {
               href="/job"
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
             >
-               Jobs
+              Jobs
             </a>
 
             <a
@@ -552,10 +543,9 @@ export default function Navbar() {
 
                 <button
                   onClick={fetchSearch}
-                  disabled={loading}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50"
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
                 >
-                  {loading ? "Searching..." : "Search Jobs"}
+                  Search Jobs
                 </button>
 
               </div>
@@ -567,88 +557,6 @@ export default function Navbar() {
         </div>
 
       )}
-
-      {/* ================================================= */}
-      {/* SEARCH RESULTS */}
-      {/* ================================================= */}
-
-      {jobs.length > 0 && (
-
-        <div className="max-w-7xl mx-auto p-6">
-
-          <div className="flex items-center justify-between mb-5">
-
-            <h2 className="text-2xl font-bold text-slate-800">
-              Search Results
-            </h2>
-
-            <span className="text-sm text-slate-500">
-              {jobs.length} jobs found
-            </span>
-
-          </div>
-
-          <div className="grid gap-4">
-
-            {jobs.map((job) => (
-
-              <div
-                key={job._id}
-                className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow"
-              >
-
-                <h3 className="text-lg font-bold text-slate-800">
-                  {job.title}
-                </h3>
-
-                {job.company && (
-                  <p className="text-sm text-blue-600 mt-1">
-                    {job.company.name}
-                  </p>
-                )}
-
-                <p className="text-sm text-slate-500 mt-2">
-                  📍 {job.location}
-                </p>
-
-                <p className="text-sm text-slate-600 mt-2">
-                  Experience: {job.experience}
-                </p>
-
-                {job.description && (
-                  <p className="text-sm text-slate-600 mt-3 line-clamp-2">
-                    {job.description}
-                  </p>
-                )}
-
-              </div>
-
-            ))}
-
-          </div>
-
-        </div>
-
-      )}
-
-      {/* ================================================= */}
-      {/* NO RESULTS */}
-      {/* ================================================= */}
-
-      {!loading &&
-        search &&
-        jobs.length === 0 &&
-        !isModalOpen && (
-
-          <div className="max-w-7xl mx-auto p-6 text-center">
-
-            <p className="text-slate-500">
-              No jobs found for "{search}"
-            </p>
-
-          </div>
-
-        )}
 
     </>
   );

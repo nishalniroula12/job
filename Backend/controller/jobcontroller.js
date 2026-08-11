@@ -65,15 +65,17 @@ export const getpublicjob = async (req, res) => {
       const {
         keyword,
         salarytype,
+        title,
         experience,
         jobtype,
         location,
+        type,
       } = req.query;
   
       const filter = {};
   
       if (keyword) {
-        filter.location = {
+        filter.title = {
           $regex: keyword,
           $options: "i",
         };
@@ -91,8 +93,18 @@ export const getpublicjob = async (req, res) => {
         filter.salarytype = salarytype;
       }
   
+      if (type) {
+        type.type = type;
+      }
+  
       if (jobtype) {
         filter.jobtype = jobtype; // or filter.jobtype if you rename the schema field
+      }
+      if(title){
+        filter.title= {
+        $regex:title,
+        $options:"i"
+        }
       }
   
       console.log(filter)

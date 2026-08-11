@@ -6,36 +6,106 @@ const Company = () => {
   const [company, setCompany] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ================= FILTER STATES =================
+  const [search, setSearch] = useState("");
+  const [companyType, setCompanyType] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+
+  // ================= FETCH ALL COMPANIES =================
   const fetchCompany = async () => {
     try {
+      setLoading(true);
+
       const res = await api.get("/get");
 
-      console.log("Company Data:", res.data);
+      console.log("All Company Data:", res.data);
 
       setCompany(res.data.company || []);
     } catch (error) {
       console.log("Error fetching company:", error);
+      setCompany([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // ================= SEARCH / FILTER COMPANIES =================
+  const fetchSearch = async (type = "", location = "") => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/get", {
+        params: {
+          keyword: search,
+          type: type,
+          location: location,
+        },
+      });
+
+      console.log("Filtered Company Data:", res.data);
+
+      setCompany(res.data.company || []);
+
+    } catch (error) {
+      console.log("Error searching companies:", error);
+      setCompany([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= HANDLE COMPANY TYPE =================
+  const handleCompanyType = (type) => {
+    if (companyType === type) {
+      // Remove company type filter
+      setCompanyType("");
+
+      // Keep location filter if selected
+      fetchSearch("", selectedLocation);
+    } else {
+      setCompanyType(type);
+
+      // Apply company type + location
+      fetchSearch(type, selectedLocation);
+    }
+  };
+
+  // ================= HANDLE LOCATION =================
+  const handleLocation = (location) => {
+    if (selectedLocation === location) {
+      // Remove location filter
+      setSelectedLocation("");
+
+      // Keep company type filter
+      fetchSearch(companyType, "");
+    } else {
+      setSelectedLocation(location);
+
+      // Apply location + company type
+      fetchSearch(companyType, location);
+    }
+  };
+
+  // ================= INITIAL LOAD =================
   useEffect(() => {
     fetchCompany();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
+
       <Navbar />
 
       {/* ================= TOP SECTION ================= */}
       <div className="max-w-7xl mx-auto px-6 pt-8">
+
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
           Top companies hiring now
         </h1>
 
         {/* Category Cards */}
         <div className="bg-indigo-50 rounded-2xl p-6">
+
           <div className="flex gap-4 overflow-x-auto">
 
             <div className="min-w-[200px] bg-white rounded-xl p-6 shadow-sm">
@@ -89,92 +159,255 @@ const Company = () => {
             </div>
 
           </div>
+
         </div>
+
       </div>
+
 
       {/* ================= MAIN CONTENT ================= */}
       <div className="max-w-7xl mx-auto px-6 mt-8">
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-          {/* ================= FILTER SIDEBAR ================= */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 h-fit">
 
-            <h2 className="text-lg font-bold mb-6">
-              All Filters
-            </h2>
+          {/* ================================================= */}
+          {/* LEFT SIDEBAR */}
+          {/* ================================================= */}
 
-            <hr className="mb-6" />
+          <div className="lg:col-span-1 space-y-6">
 
-            <h3 className="font-semibold mb-4">
-              Company type
-            </h3>
 
-            <div className="space-y-4">
+            {/* ================= COMPANY TYPE FILTER ================= */}
 
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5"
-                />
-                <span>
-                  Corporate
-                </span>
-              </label>
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
 
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5"
-                />
-                <span>
-                  Foreign MNC
-                </span>
-              </label>
+              <h2 className="text-lg font-bold mb-6">
+                All Filters
+              </h2>
 
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5"
-                />
-                <span>
-                  Startup
-                </span>
-              </label>
+              <hr className="mb-6" />
 
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5"
-                />
-                <span>
-                  Indian MNC
-                </span>
-              </label>
+              <h3 className="font-semibold mb-4">
+                Company Type
+              </h3>
+
+              <div className="space-y-4">
+
+                {/* CORPORATE */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={companyType === "c"}
+                    onChange={() => handleCompanyType("c")}
+                  />
+
+                  <span>
+                    Corporate
+                  </span>
+
+                </label>
+
+
+                {/* FOREIGN MNC */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={companyType === "f"}
+                    onChange={() => handleCompanyType("f")}
+                  />
+
+                  <span>
+                    Foreign MNC
+                  </span>
+
+                </label>
+
+
+                {/* STARTUP */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={companyType === "Startup"}
+                    onChange={() => handleCompanyType("Startup")}
+                  />
+
+                  <span>
+                    Startup
+                  </span>
+
+                </label>
+
+
+                {/* INDIAN MNC */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={companyType === "Indian MNC"}
+                    onChange={() => handleCompanyType("Indian MNC")}
+                  />
+
+                  <span>
+                    Indian MNC
+                  </span>
+
+                </label>
+
+              </div>
 
             </div>
+
+
+            {/* ================= LOCATION FILTER ================= */}
+
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+
+              <h3 className="font-semibold mb-4">
+                Location
+              </h3>
+
+              <div className="space-y-4">
+
+                {/* KATHMANDU */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={selectedLocation === "k"}
+                    onChange={() => handleLocation("k")}
+                  />
+
+                  <span>
+                    Kathmandu
+                  </span>
+
+                </label>
+
+
+                {/* JHAPA */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={selectedLocation === "Jhapa"}
+                    onChange={() => handleLocation("Jhapa")}
+                  />
+
+                  <span>
+                    Jhapa
+                  </span>
+
+                </label>
+
+
+                {/* ILAM */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={selectedLocation === "Ilam"}
+                    onChange={() => handleLocation("Ilam")}
+                  />
+
+                  <span>
+                    Ilam
+                  </span>
+
+                </label>
+
+
+                {/* CHITWAN */}
+                <label className="flex items-center gap-3 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={selectedLocation === "Chitwan"}
+                    onChange={() => handleLocation("Chitwan")}
+                  />
+
+                  <span>
+                    Chitwan
+                  </span>
+
+                </label>
+
+              </div>
+
+            </div>
+
           </div>
 
-          {/* ================= COMPANY LIST ================= */}
+
+          {/* ================================================= */}
+          {/* RIGHT SIDE - COMPANY LIST */}
+          {/* ================================================= */}
+
           <div className="lg:col-span-3">
 
+
+            {/* HEADER */}
+
             <div className="flex justify-between items-center mb-5">
+
               <h2 className="text-lg font-medium">
+
                 Showing {company.length} companies
+
               </h2>
+
+
+              <div className="flex gap-2">
+
+                {companyType && (
+                  <span className="text-sm text-blue-600">
+                    Type: {companyType}
+                  </span>
+                )}
+
+                {selectedLocation && (
+                  <span className="text-sm text-green-600">
+                    Location: {selectedLocation}
+                  </span>
+                )}
+
+              </div>
+
             </div>
 
+
+            {/* LOADING */}
+
             {loading ? (
+
               <div className="text-center py-10">
                 Loading companies...
               </div>
+
             ) : company.length === 0 ? (
+
               <div className="bg-white rounded-xl p-10 text-center">
+
                 <p className="text-gray-500">
                   No companies found
                 </p>
+
               </div>
+
             ) : (
+
+              /* COMPANY CARDS */
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
@@ -187,7 +420,9 @@ const Company = () => {
 
                     <div className="flex items-center gap-4">
 
-                      {/* Company Logo */}
+
+                      {/* COMPANY LOGO */}
+
                       <div className="w-16 h-16 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
 
                         <img
@@ -198,7 +433,9 @@ const Company = () => {
 
                       </div>
 
-                      {/* Company Information */}
+
+                      {/* COMPANY INFORMATION */}
+
                       <div className="flex-1 min-w-0">
 
                         <div className="flex items-center justify-between">
@@ -213,22 +450,54 @@ const Company = () => {
 
                         </div>
 
+
+                        {/* LOCATION */}
+
                         <p className="text-sm text-gray-500 mt-1">
                           {item.location}
                         </p>
 
+
+                        {/* TAGS */}
+
                         <div className="flex flex-wrap gap-2 mt-3">
 
+                          {/* INDUSTRY */}
+
                           {item.industry && (
+
                             <span className="px-3 py-1 text-xs rounded-full bg-gray-50 border border-gray-200 text-gray-600">
+
                               {item.industry}
+
                             </span>
+
                           )}
 
-                          {item.foundedyear && (
-                            <span className="px-3 py-1 text-xs rounded-full bg-gray-50 border border-gray-200 text-gray-600">
-                              Founded: {item.foundedyear}
+
+                          {/* COMPANY TYPE */}
+
+                          {item.type && (
+
+                            <span className="px-3 py-1 text-xs rounded-full bg-blue-50 border border-blue-200 text-blue-600">
+
+                              {item.type}
+
                             </span>
+
+                          )}
+
+
+                          {/* FOUNDED YEAR */}
+
+                          {item.foundedyear && (
+
+                            <span className="px-3 py-1 text-xs rounded-full bg-gray-50 border border-gray-200 text-gray-600">
+
+                              Founded: {item.foundedyear}
+
+                            </span>
+
                           )}
 
                         </div>
@@ -250,8 +519,9 @@ const Company = () => {
         </div>
 
       </div>
+
     </div>
   );
 };
 
-export default Company; 
+export default Company;

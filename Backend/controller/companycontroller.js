@@ -7,6 +7,7 @@ export const createcompany = async (req, res) => {
   try {
     const {
       name,
+      type,
       description,
       email,
       phone,
@@ -22,6 +23,7 @@ export const createcompany = async (req, res) => {
     console.log(result);
     const company = await Company.create({
       name,
+      type,
       description,
       email,
       phone,
@@ -50,7 +52,30 @@ export const createcompany = async (req, res) => {
 //public
 export const getcompany=async(req,res)=>{
   try {
-    const company =await Company.find()
+    const{keyword,type ,location} =req.query
+
+    const filter ={}
+    if(keyword){
+      filter.name={
+        $regex:keyword,
+        $options:'i'
+      }
+    }
+    if(location){
+      filter.location={
+        $regex:location,
+        $options:"i"
+      }
+    }
+    if(type){
+      filter.type={
+      $regex: `^${type}`,
+      $options:"i"
+    };
+        }
+
+    console.log(filter)
+    const company =await Company.find(filter)
     return res.status(201).json({
       success:true,
       message:"get all public data",
@@ -89,6 +114,7 @@ export const updatecompany = async (req, res) => {
     }
 
     company.name = req.body.name || company.name;
+    company.type = req.body.type || company.type;
     company.description = req.body.description || company.description;
     company.email = req.body.email || company.email;
     company.phone = req.body.phone || company.phone;
