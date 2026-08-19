@@ -1,15 +1,25 @@
 import React, { useState } from "react";
-import api from "../api/axios";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import api from "../api/axios.js";
+import { logindata } from "../Redux/redux.js";
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const nav = useNavigate();
+
   const [login, setLogin] = useState({
     email: "",
     password: "",
   });
 
   const [loading, setLoading] = useState(false);
-
   const [message, setMessage] = useState("");
+
+  // ============================================
+  // HANDLE INPUT
+  // ============================================
 
   const handleChange = (e) => {
     setLogin({
@@ -18,120 +28,184 @@ const Login = () => {
     });
   };
 
-  const fetchlogin = async (e) => {
+  // ============================================
+  // LOGIN
+  // ============================================
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!login.email || !login.password) {
+      setMessage("Email and password are required");
+      return;
+    }
 
     try {
       setLoading(true);
       setMessage("");
 
-      const res = await api.post("/login", {
-        email: login.email,
-        password: login.password,
-      });
+      const response = await api.post("/login", login);
 
-      console.log("Login response:", res.data);
+      console.log("Login response:", response.data);
 
-      if (res.data.success) {
-        setMessage("Login successful!");
+      if (!response.data.success) {
+        setMessage(response.data.message);
+        return;
+      }
 
-        console.log("Logged in user:", res.data.user);
+      // ============================================
+      // GET USER
+      // ============================================
 
-        // Go to profile after login
-        window.location.href = "/profile";
+      const user = response.data.user;
+
+      console.log("Logged in user:", user);
+
+      if (!user) {
+        setMessage("User data not received from server");
+        return;
+      }
+
+      // ============================================
+      // STORE USER IN REDUX
+      // ============================================
+
+      dispatch(logindata(user));
+
+      // ============================================
+      // REDIRECT BASED ON ROLE
+      // ============================================
+
+      if (user.role === "admin") {
+        nav("/admin");
+      } else if (user.role === "employer") {
+        nav("/employer");
+      } else if (user.role === "employe") {
+        nav("/profile");
       } else {
-        setMessage(res.data.message || "Login failed");
+        nav("/");
       }
 
     } catch (error) {
-      console.log(
-        "Login error:",
-        error.response?.data || error.message
-      );
+      console.error("LOGIN ERROR:", error);
 
       setMessage(
-        error.response?.data?.message || "Something went wrong"
+        error.response?.data?.message ||
+        "Something went wrong during login"
       );
+
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
 
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
+      <div className="w-full max-w-md">
 
-        <h1 className="text-2xl font-bold text-gray-900 text-center">
-          Login
-        </h1>
+        <div className="bg-white rounded-2xl shadow-lg p-8">
 
-        <p className="text-gray-500 text-sm text-center mt-2">
-          Login to your account
-        </p>
+          {/* LOGO */}
 
-        <form
-          onSubmit={fetchlogin}
-          className="mt-6 space-y-5"
-        >
+          <div className="text-center mb-8">
 
-          {/* EMAIL */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
+            <div className="text-4xl mb-2">
+              💼
+            </div>
 
-            <input
-              type="email"
-              name="email"
-              value={login.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500"
-            />
-          </div>
+            <h1 className="text-3xl font-bold text-slate-800">
+              Job
+              <span className="text-blue-600">
+                Sphere
+              </span>
+            </h1>
 
-          {/* PASSWORD */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
+            <p className="text-slate-500 mt-2">
+              Login to your account
+            </p>
 
-            <input
-              type="password"
-              name="password"
-              value={login.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500"
-            />
           </div>
 
           {/* MESSAGE */}
+
           {message && (
-            <div
-              className={`text-sm text-center ${
-                message === "Login successful!"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
+            <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
               {message}
             </div>
           )}
 
-          {/* BUTTON */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          {/* FORM */}
 
-        </form>
+          <form onSubmit={handleLogin}>
+
+            {/* EMAIL */}
+
+            <div className="mb-5">
+
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Email
+              </label>
+
+              <input
+                type="email"
+                name="email"
+                value={login.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+            </div>
+
+            {/* PASSWORD */}
+
+            <div className="mb-6">
+
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Password
+              </label>
+
+              <input
+                type="password"
+                name="password"
+                value={login.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+            </div>
+
+            {/* LOGIN BUTTON */}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-lg transition"
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+          </form>
+
+          {/* SIGNUP */}
+
+          <p className="text-center text-sm text-slate-500 mt-6">
+
+            Don't have an account?
+
+            <button
+              type="button"
+              onClick={() => nav("/signup")}
+              className="ml-1 text-blue-600 font-semibold hover:underline"
+            >
+              Sign Up
+            </button>
+
+          </p>
+
+        </div>
 
       </div>
 

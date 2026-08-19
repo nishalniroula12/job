@@ -60,52 +60,93 @@ export const userregister = async (req, res) => {
         });
     }
 };
-
-export const signin =async(req,res)=>{
+export const signin = async (req, res) => {
     try {
-        const {email ,password }=req.body
-        if(!email || !password){
-            return res.status(401).json({
-                success:false,
-                message:"all field required"
-            })
-        }
-        const user =await User.findOne({email})
-        if(!user){
-            return res.status(201).json({
-                success:false,
-                message:"user not found "
-            })
-        }
-        const matchpassword =await bcrypt.compare(password,user.password)
-        console.log(matchpassword)
-        if(!matchpassword){
-            return res.status(201).json({
-                success:false,
-                message:"password not match"
-            })
-        }
-const token =generatetoken({id :user._id},process.env.JWT_SECRET ,"7d")
-    res.cookie("token", token, {
+      const { email, password } = req.body;
+  
+      // Check fields
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required",
+        });
+      }
+  
+      // Find user
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+  
+      // Compare password
+      const matchpassword = await bcrypt.compare(
+        password,
+        user.password
+      );
+  
+      console.log("Password match:", matchpassword);
+  
+      if (!matchpassword) {
+        return res.status(401).json({
+          success: false,
+          message: "Password does not match",
+        });
+      }
+  
+      // Create JWT
+      const token = generatetoken(
+        { id: user._id },
+        process.env.JWT_SECRET,
+        "7d"
+      );
+  
+      // Cookie
+      res.cookie("token", token, {
         httpOnly: true,
-        secure: false,
+        secure: false, // development
         sameSite: "lax",
         path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1000,
-     
-})
-console.log(token)
- return res.status(201).json({
-    success:true,
-    message:"user login successfuly"
-})
-        
+      });
+  
+      console.log("TOKEN:", token);
+  
+      // Don't send password to frontend
+      const userData = {
+        _id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        skill: user.skill,
+        education: user.education,
+        experience: user.experience,
+        resume: user.resume,
+        location: user.location,
+        isverfied: user.isverfied,
+      };
+  
+      return res.status(200).json({
+        success: true,
+        message: "User login successfully",
+        user: userData,
+      });
+  
     } catch (error) {
-        console.log(error)
-        
+      console.log("LOGIN ERROR:", error);
+  
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
     }
-}
-export const logoutuser =async(req,res)=>{
+  };
+  export const logoutuser =async(req,res)=>{
     try {
         res.clearCookie('token',{
             httpOnly: true,

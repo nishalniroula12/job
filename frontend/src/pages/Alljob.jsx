@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 const Alljob = () => {
   const [job, setJob] = useState([]);
@@ -10,6 +11,7 @@ const Alljob = () => {
   const [experience, setExperience] = useState("");
   const [location, setLocation] = useState("");
   const [jobtype, setJobtype] = useState("");
+  const navigator =useNavigate()
 
   // ==============================
   // FETCH JOBS
@@ -322,7 +324,7 @@ const Alljob = () => {
 
                     <div className="flex justify-between gap-4">
 
-                      <div>
+                      <div onClick={()=>navigator(`/apply/${id}`)}>
 
                         <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer">
                           {item.title}

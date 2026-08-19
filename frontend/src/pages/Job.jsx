@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import {
   FaBriefcase,
   FaMapMarkerAlt,
@@ -10,15 +11,36 @@ import {
   FaRupeeSign,
 } from "react-icons/fa";
 
+import { useNavigate } from "react-router-dom";
+
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 
 const Job = () => {
+  const navigate = useNavigate();
+
+  // =========================================
+  // JOB STATE
+  // =========================================
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Active tab
+  // =========================================
+  // ACTIVE TAB
+  // =========================================
+
   const [activeTab, setActiveTab] = useState("applies");
+
+  // =========================================
+  // SELECTED JOBS
+  // =========================================
+
+  const [selectedJobs, setSelectedJobs] = useState([]);
+
+  // =========================================
+  // FETCH JOBS
+  // =========================================
 
   const fetchJobs = async () => {
     try {
@@ -37,57 +59,160 @@ const Job = () => {
     }
   };
 
+  // =========================================
+  // USE EFFECT
+  // =========================================
+
   useEffect(() => {
     fetchJobs();
   }, []);
 
-  // ================================
+  // =========================================
   // TAB CHANGE
-  // ================================
+  // =========================================
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+
+    if (tab === "applies") {
+      navigate("/applies");
+    }
+
+    if (tab === "profile") {
+      navigate("/profile");
+    }
+
+    if (tab === "liked") {
+      navigate("/liked");
+    }
+
+    if (tab === "preferences") {
+      navigate("/preferences");
+    }
   };
+
+  // =========================================
+  // SELECT / UNSELECT JOB
+  // =========================================
+
+  const handleSelectJob = (job) => {
+    setSelectedJobs((prev) => {
+      const alreadySelected = prev.some(
+        (item) => item._id === job._id
+      );
+
+      // -----------------------------------------
+      // REMOVE JOB
+      // -----------------------------------------
+
+      if (alreadySelected) {
+        return prev.filter(
+          (item) => item._id !== job._id
+        );
+      }
+
+      // -----------------------------------------
+      // MAXIMUM 5 JOBS
+      // -----------------------------------------
+
+      if (prev.length >= 5) {
+        alert("You can select maximum 5 jobs.");
+        return prev;
+      }
+
+      // -----------------------------------------
+      // ADD JOB
+      // -----------------------------------------
+
+      return [...prev, job];
+    });
+  };
+
+  // =========================================
+  // APPLY BUTTON
+  // =========================================
+
+  const handleApply = () => {
+    if (selectedJobs.length === 0) {
+      alert("Please select at least one job.");
+      return;
+    }
+  
+    navigate(`/apply/${selectedJobs[0]._id}`, {
+      state: {
+        jobs: selectedJobs,
+      },
+    });
+  }; // =========================================
+  // RETURN
+  // =========================================
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
-      {/* Navbar */}
+
+      {/* =========================================
+          NAVBAR
+      ========================================= */}
+
       <Navbar />
 
-      {/* Main Container */}
+      {/* =========================================
+          MAIN CONTAINER
+      ========================================= */}
+
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
 
-        {/* ================================
+        {/* =========================================
             PAGE HEADER
-        ================================= */}
+        ========================================= */}
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
 
-          <h1 className="text-2xl font-bold text-gray-900">
-            Recommended Jobs for You
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Recommended Jobs for You
+            </h1>
+
+            <p className="text-gray-500 mt-1">
+              Select up to 5 jobs to apply
+            </p>
+          </div>
 
           <div className="flex items-center gap-5 mt-4 md:mt-0">
 
             <p className="text-gray-700 font-medium">
-              You can select up to 5 jobs to apply
+              {selectedJobs.length}/5 jobs selected
             </p>
 
+            {/* =========================================
+                APPLY BUTTON
+            ========================================= */}
+
             <button
-              disabled
-              className="bg-blue-200 text-white px-8 py-3 rounded-full font-semibold"
+              onClick={handleApply}
+              disabled={selectedJobs.length === 0}
+              className={`px-8 py-3 rounded-full font-semibold transition ${
+                selectedJobs.length > 0
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-blue-200 text-white cursor-not-allowed"
+              }`}
             >
-              Apply
+              Apply ({selectedJobs.length})
             </button>
 
           </div>
         </div>
 
-
-        {/* ================================
+        {/* =========================================
             TABS
-        ================================= */}
+        ========================================= */}
+
         <div className="flex gap-8 border-b border-gray-200 mb-7 overflow-x-auto">
 
-          {/* Applies */}
+          {/* =========================================
+              APPLIES
+          ========================================= */}
+
           <button
             onClick={() => handleTabChange("applies")}
             className={`pb-3 whitespace-nowrap ${
@@ -99,8 +224,10 @@ const Job = () => {
             Applies ({jobs.length})
           </button>
 
+          {/* =========================================
+              PROFILE
+          ========================================= */}
 
-          {/* Profile */}
           <button
             onClick={() => handleTabChange("profile")}
             className={`pb-3 whitespace-nowrap ${
@@ -109,11 +236,13 @@ const Job = () => {
                 : "text-gray-500 hover:text-blue-600"
             }`}
           >
-            Profile ({jobs.length})
+            Profile
           </button>
 
+          {/* =========================================
+              YOU MIGHT LIKE
+          ========================================= */}
 
-          {/* You Might Like */}
           <button
             onClick={() => handleTabChange("liked")}
             className={`pb-3 whitespace-nowrap ${
@@ -122,11 +251,13 @@ const Job = () => {
                 : "text-gray-500 hover:text-blue-600"
             }`}
           >
-            You might like ({jobs.length})
+            You might like
           </button>
 
+          {/* =========================================
+              PREFERENCES
+          ========================================= */}
 
-          {/* Preferences */}
           <button
             onClick={() => handleTabChange("preferences")}
             className={`pb-3 whitespace-nowrap ${
@@ -135,26 +266,29 @@ const Job = () => {
                 : "text-gray-500 hover:text-blue-600"
             }`}
           >
-            Preferences (0)
+            Preferences
           </button>
 
         </div>
 
-
-        {/* ================================
+        {/* =========================================
             CONTENT
-        ================================= */}
+        ========================================= */}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-
-          {/* ================================
+          {/* =========================================
               LEFT SIDE - JOB LIST
-          ================================= */}
+          ========================================= */}
+
           <div className="lg:col-span-2 space-y-5">
+
+            {/* =========================================
+                PREFERENCES TAB
+            ========================================= */}
 
             {activeTab === "preferences" ? (
 
-              /* Preferences Tab */
               <div className="bg-white rounded-2xl p-10 text-center shadow-sm">
 
                 <h2 className="text-xl font-bold text-gray-900 mb-3">
@@ -170,7 +304,10 @@ const Job = () => {
 
             ) : loading ? (
 
-              /* Loading */
+              /* =========================================
+                 LOADING
+              ========================================= */
+
               <div className="bg-white rounded-2xl p-10 text-center shadow-sm">
 
                 <p className="text-gray-500">
@@ -181,7 +318,10 @@ const Job = () => {
 
             ) : jobs.length === 0 ? (
 
-              /* No Jobs */
+              /* =========================================
+                 NO JOBS
+              ========================================= */
+
               <div className="bg-white rounded-2xl p-10 text-center shadow-sm">
 
                 <p className="text-gray-500 text-lg">
@@ -192,12 +332,17 @@ const Job = () => {
 
             ) : (
 
-              /* Jobs */
+              /* =========================================
+                 JOBS
+              ========================================= */
+
               jobs.map((job) => (
 
                 <JobCard
                   key={job._id}
                   job={job}
+                  selectedJobs={selectedJobs}
+                  onSelect={handleSelectJob}
                 />
 
               ))
@@ -206,10 +351,10 @@ const Job = () => {
 
           </div>
 
-
-          {/* ================================
+          {/* =========================================
               RIGHT SIDE - PREFERENCES
-          ================================= */}
+          ========================================= */}
+
           <div className="lg:col-span-1">
 
             <div className="bg-white border border-gray-200 rounded-xl p-6 sticky top-24">
@@ -218,22 +363,29 @@ const Job = () => {
                 Add preferences to get matching jobs
               </h2>
 
+              {/* =========================================
+                  PREFERRED JOB ROLE
+              ========================================= */}
 
-              {/* Preferred Job Role */}
               <div className="mb-7">
 
                 <p className="text-sm text-gray-600 mb-2">
                   Preferred job role
                 </p>
 
-                <button className="border border-blue-600 text-blue-600 px-5 py-2 rounded-full text-sm font-medium hover:bg-blue-50">
+                <button
+                  onClick={() => navigate("/preferences")}
+                  className="border border-blue-600 text-blue-600 px-5 py-2 rounded-full text-sm font-medium hover:bg-blue-50"
+                >
                   + Add
                 </button>
 
               </div>
 
+              {/* =========================================
+                  PREFERRED LOCATION
+              ========================================= */}
 
-              {/* Preferred Location */}
               <div className="mb-7">
 
                 <div className="flex items-center justify-between mb-2">
@@ -242,7 +394,10 @@ const Job = () => {
                     Preferred work location
                   </p>
 
-                  <button className="text-blue-600 text-sm">
+                  <button
+                    onClick={() => navigate("/preferences")}
+                    className="text-blue-600 text-sm hover:text-blue-800"
+                  >
                     ✎
                   </button>
 
@@ -254,8 +409,10 @@ const Job = () => {
 
               </div>
 
+              {/* =========================================
+                  PREFERRED SALARY
+              ========================================= */}
 
-              {/* Preferred Salary */}
               <div>
 
                 <div className="flex items-center justify-between mb-2">
@@ -264,7 +421,10 @@ const Job = () => {
                     Preferred salary
                   </p>
 
-                  <button className="text-blue-600 text-sm">
+                  <button
+                    onClick={() => navigate("/preferences")}
+                    className="text-blue-600 text-sm hover:text-blue-800"
+                  >
                     ✎
                   </button>
 
@@ -289,22 +449,62 @@ const Job = () => {
 };
 
 
-/* =====================================================
-   JOB CARD
-===================================================== */
+// =====================================================
+// JOB CARD
+// =====================================================
 
-const JobCard = ({ job }) => {
+const JobCard = ({
+  job,
+  selectedJobs,
+  onSelect,
+}) => {
+
+  // =========================================
+  // SAVED STATE
+  // =========================================
 
   const [saved, setSaved] = useState(false);
 
+  // =========================================
+  // CHECK SELECTED
+  // =========================================
+
+  const isSelected = selectedJobs.some(
+    (item) => item._id === job._id
+  );
+
+  // =========================================
+  // RETURN
+  // =========================================
+
   return (
 
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition">
+    <div
+      className={`bg-white rounded-2xl border shadow-sm p-6 transition ${
+        isSelected
+          ? "border-blue-500 ring-2 ring-blue-100"
+          : "border-gray-100 hover:shadow-md"
+      }`}
+    >
 
+      {/* =========================================
+          SELECTED LABEL
+      ========================================= */}
 
-      {/* ================================
+      {isSelected && (
+        <div className="mb-4">
+
+          <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-sm font-medium">
+            ✓ Selected for application
+          </span>
+
+        </div>
+      )}
+
+      {/* =========================================
           JOB HEADER
-      ================================= */}
+      ========================================= */}
+
       <div className="flex justify-between gap-4">
 
         <div className="flex-1">
@@ -312,7 +512,6 @@ const JobCard = ({ job }) => {
           <h2 className="text-lg font-bold text-gray-900 mb-2">
             {job.title}
           </h2>
-
 
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-5">
 
@@ -342,8 +541,10 @@ const JobCard = ({ job }) => {
 
         </div>
 
+        {/* =========================================
+            COMPANY LOGO
+        ========================================= */}
 
-        {/* Company Logo */}
         <div className="w-14 h-14 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden">
 
           {job.company?.image ? (
@@ -364,14 +565,14 @@ const JobCard = ({ job }) => {
 
       </div>
 
-
-      {/* ================================
+      {/* =========================================
           JOB INFORMATION
-      ================================= */}
+      ========================================= */}
+
       <div className="flex flex-wrap gap-x-5 gap-y-3 text-sm text-gray-600 mb-5">
 
+        {/* EXPERIENCE */}
 
-        {/* Experience */}
         <div className="flex items-center gap-2">
 
           <FaBriefcase className="text-gray-400" />
@@ -382,11 +583,10 @@ const JobCard = ({ job }) => {
 
         </div>
 
-
         <div className="h-5 border-l border-gray-300"></div>
 
+        {/* SALARY */}
 
-        {/* Salary */}
         <div className="flex items-center gap-2">
 
           <FaRupeeSign className="text-gray-400" />
@@ -401,11 +601,10 @@ const JobCard = ({ job }) => {
 
         </div>
 
-
         <div className="h-5 border-l border-gray-300"></div>
 
+        {/* LOCATION */}
 
-        {/* Location */}
         <div className="flex items-center gap-2">
 
           <FaMapMarkerAlt className="text-gray-400" />
@@ -418,10 +617,10 @@ const JobCard = ({ job }) => {
 
       </div>
 
-
-      {/* ================================
+      {/* =========================================
           DESCRIPTION
-      ================================= */}
+      ========================================= */}
+
       <div className="flex items-start gap-3 text-sm text-gray-600 mb-4">
 
         <FaBuilding className="mt-1 text-gray-400" />
@@ -435,10 +634,10 @@ const JobCard = ({ job }) => {
 
       </div>
 
-
-      {/* ================================
+      {/* =========================================
           SKILLS
-      ================================= */}
+      ========================================= */}
+
       {job.skill && (
 
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-5">
@@ -453,12 +652,13 @@ const JobCard = ({ job }) => {
 
       )}
 
-
-      {/* ================================
+      {/* =========================================
           BOTTOM ACTIONS
-      ================================= */}
-      <div className="flex items-center justify-between mt-5">
+      ========================================= */}
 
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5">
+
+        {/* DATE */}
 
         <span className="text-sm text-gray-400">
 
@@ -468,21 +668,39 @@ const JobCard = ({ job }) => {
 
         </span>
 
+        <div className="flex flex-wrap items-center gap-4">
 
-        <div className="flex items-center gap-5">
+          {/* =========================================
+              SELECT BUTTON
+          ========================================= */}
 
+          <button
+            onClick={() => onSelect(job)}
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+              isSelected
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "border border-blue-600 text-blue-600 hover:bg-blue-50"
+            }`}
+          >
+            {isSelected ? "Selected ✓" : "Select"}
+          </button>
 
-          {/* Hide */}
-          <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-500">
+          {/* =========================================
+              HIDE
+          ========================================= */}
 
+          <button
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-500"
+          >
             <FaEyeSlash />
 
             Hide
-
           </button>
 
+          {/* =========================================
+              SAVE
+          ========================================= */}
 
-          {/* Save */}
           <button
             onClick={() => setSaved(!saved)}
             className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600"
@@ -509,6 +727,5 @@ const JobCard = ({ job }) => {
     </div>
   );
 };
-
 
 export default Job;

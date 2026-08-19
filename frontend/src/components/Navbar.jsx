@@ -1,82 +1,212 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar() {
-  // =========================================
-  // NAVBAR STATE
-  // =========================================
+import api from "../api/axios.js";
+import { logoutdata } from "../Redux/redux.js";
+
+const Navbar = () => {
+
+  const nav = useNavigate();
+  const dispatch = useDispatch();
+
+  // ============================================
+  // REDUX
+  // ============================================
+
+  const isAuthenticate = useSelector(
+    (state) => state.data.isAuthenticate
+  );
+
+  const user = useSelector(
+    (state) => state.data.user
+  );
+
+  console.log("NAVBAR AUTH:", isAuthenticate);
+  console.log("NAVBAR USER:", user);
+
+  // ============================================
+  // STATES
+  // ============================================
+
   const [isOpen, setIsOpen] = useState(false);
 
-  // =========================================
-  // SEARCH STATE
-  // =========================================
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const [profile, setProfile] = useState(null);
+
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const [search, setSearch] = useState("");
+
   const [experience, setExperience] = useState("");
+
   const [location, setLocation] = useState("");
 
-  // =========================================
-  // NAVIGATION
-  // =========================================
-  const nav = useNavigate();
+  // ============================================
+  // LOGOUT
+  // ============================================
 
-  // =========================================
-  // MODAL STATE
-  // =========================================
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleLogout = async () => {
 
-  // =========================================
-  // OPEN SEARCH MODAL
-  // =========================================
-  const openSearchModal = () => {
-    setIsModalOpen(true);
+    try {
+
+      // If you have backend logout route
+      await api.post("/logout");
+
+    } catch (error) {
+
+      console.log(
+        "Logout API error:",
+        error.response?.data || error.message
+      );
+
+    }
+
+    dispatch(logoutdata());
+
+    setIsOpen(false);
+    setIsProfileOpen(false);
+
+    nav("/");
+
   };
 
-  // =========================================
-  // CLOSE SEARCH MODAL
-  // =========================================
-  const closeSearchModal = () => {
-    setIsModalOpen(false);
-  };
+  // ============================================
+  // LOGIN
+  // ============================================
 
-  // =========================================
-  // SEARCH JOBS
-  // =========================================
-  const fetchSearch = () => {
-    // Create URL query parameters
-    const params = new URLSearchParams();
+  const goLogin = () => {
 
-    // Add keyword
-    if (search.trim()) {
-      params.append("title", search.trim());
-    }
-
-    // Add experience
-    if (experience) {
-      params.append("experience", experience);
-    }
-
-    // Add location
-    if (location.trim()) {
-      params.append("location", location.trim());
-    }
-
-    // Close modal
-    setIsModalOpen(false);
-
-    // Close mobile menu
     setIsOpen(false);
 
-    // Redirect to AllJob page
-    nav(`/alljob?${params.toString()}`);
+    nav("/login");
+
   };
 
-  // =========================================
-  // CLEAR SEARCH
-  // =========================================
-  const clearSearch = () => {
-    setSearch("");
-    setExperience("");
-    setLocation("");
+  // ============================================
+  // SIGNUP
+  // ============================================
+
+  const goSignup = () => {
+
+    setIsOpen(false);
+
+    nav("/signup");
+
+  };
+
+  // ============================================
+  // PROFILE
+  // ============================================
+
+  const openProfile = async () => {
+
+    if (!isAuthenticate) {
+
+      nav("/login");
+
+      return;
+
+    }
+
+    setIsProfileOpen(true);
+
+    setProfileLoading(true);
+
+    try {
+
+      const response = await api.get("/profile");
+
+      console.log(
+        "PROFILE RESPONSE:",
+        response.data
+      );
+
+      const userData =
+        response.data?.user ||
+        response.data?.profile ||
+        response.data?.data ||
+        response.data;
+
+      setProfile(userData);
+
+    } catch (error) {
+
+      console.error(
+        "PROFILE ERROR:",
+        error
+      );
+
+    } finally {
+
+      setProfileLoading(false);
+
+    }
+
+  };
+
+  // ============================================
+  // SEARCH
+  // ============================================
+
+  const searchJobs = () => {
+
+    const params = new URLSearchParams();
+
+    if (search.trim()) {
+
+      params.append(
+        "keyword",
+        search.trim()
+      );
+
+    }
+
+    if (experience) {
+
+      params.append(
+        "experience",
+        experience
+      );
+
+    }
+
+    if (location.trim()) {
+
+      params.append(
+        "location",
+        location.trim()
+      );
+
+    }
+
+    setIsSearchOpen(false);
+
+    nav(`/alljob?${params.toString()}`);
+
+  };
+
+  // ============================================
+  // NOTIFICATION
+  // ============================================
+
+  const goNotification = () => {
+
+    if (!isAuthenticate) {
+
+      nav("/login");
+
+      return;
+
+    }
+
+    setIsOpen(false);
+
+    nav("/notification");
+
   };
 
   return (
@@ -85,200 +215,202 @@ export default function Navbar() {
       {/* NAVBAR */}
       {/* ================================================= */}
 
-      <nav className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all duration-300">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="flex items-center justify-between h-16 gap-4">
+          <div className="h-16 flex items-center justify-between gap-4 md:gap-8">
 
             {/* ================================================= */}
-            {/* LOGO AND DESKTOP NAVIGATION */}
+            {/* LOGO */}
             {/* ================================================= */}
 
-            <div className="flex items-center gap-8">
+            <button
+              onClick={() => nav("/")}
+              className="flex items-center gap-2.5 group shrink-0 focus:outline-none"
+            >
 
-              {/* LOGO */}
-
-              <a
-                href="/"
-                className="flex items-center gap-2 text-xl font-bold text-slate-800 shrink-0"
-              >
-                <span className="text-2xl">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+                <span className="text-xl">
                   💼
                 </span>
+              </div>
 
-                <span>
-                  Job
-                  <span className="text-blue-600">
-                    Sphere
-                  </span>
+              <span className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                Job
+                <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Sphere
                 </span>
-              </a>
+              </span>
 
-              {/* DESKTOP LINKS */}
-
-              <div className="hidden lg:flex items-center space-x-6">
-
-                <a
-                  href="/job"
-                  className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                >
-                  Jobs
-                </a>
-
-                <a
-                  href="/company"
-                  className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                >
-                  Companies
-                </a>
-
-                <a
-                  href="#"
-                  className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                >
-                  Salaries
-                </a>
-
-                <a
-                  href="#"
-                  className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                >
-                  Career Advice
-                </a>
-
-              </div>
-            </div>
+            </button>
 
             {/* ================================================= */}
-            {/* DESKTOP SEARCH */}
+            {/* DESKTOP LINKS */}
             {/* ================================================= */}
 
-            <div className="hidden sm:flex items-center gap-2 flex-1 max-w-md mx-2">
-
-              <div className="relative flex-1">
-
-                {/* SEARCH ICON */}
-
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-
-                {/* SEARCH INPUT */}
-
-                <input
-                  type="text"
-                  value={search}
-                  onClick={openSearchModal}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search jobs..."
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-sm cursor-pointer"
-                />
-
-              </div>
-
-              {/* SEARCH BUTTON */}
+            <div className="hidden lg:flex items-center gap-1">
 
               <button
-                onClick={openSearchModal}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm shrink-0"
+                onClick={() => nav("/job")}
+                className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100/70 transition-all duration-200"
               >
+                Jobs
+              </button>
 
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+              <button
+                onClick={() => nav("/company")}
+                className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100/70 transition-all duration-200"
+              >
+                Companies
+              </button>
 
+              <button
+                onClick={() => nav("/about")}
+                className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100/70 transition-all duration-200"
+              >
+                About
               </button>
 
             </div>
 
             {/* ================================================= */}
-            {/* RIGHT SIDE BUTTONS */}
+            {/* SEARCH BUTTON (TRIGGER) */}
             {/* ================================================= */}
 
-            <div className="hidden md:flex items-center space-x-3 shrink-0">
+            {isAuthenticate && (
 
-              <a
-                href="/profile"
-                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-              >
-                Profile
-              </a>
+              <div className="hidden md:flex flex-1 max-w-md">
 
-              <a
-                href="/login"
-                className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
-              >
-                Sign In
-              </a>
-
-            </div>
-
-            {/* ================================================= */}
-            {/* MOBILE MENU BUTTON */}
-            {/* ================================================= */}
-
-            <div className="flex md:hidden">
-
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                type="button"
-                className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              >
-
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="w-full flex items-center justify-between gap-3 px-4 py-2 bg-slate-100/80 hover:bg-slate-100 border border-slate-200/80 rounded-xl text-slate-400 hover:text-slate-600 hover:border-blue-400/50 transition-all duration-200 group shadow-inner"
                 >
 
-                  {isOpen ? (
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-slate-400 group-hover:scale-110 transition-transform">🔍</span>
+                    <span className="text-sm font-medium">
+                      Search jobs...
+                    </span>
+                  </div>
 
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  <kbd className="hidden lg:inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-slate-400 bg-white rounded border border-slate-200 shadow-2xs">
+                    Ctrl K
+                  </kbd>
 
-                  ) : (
+                </button>
 
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+              </div>
 
-                  )}
+            )}
 
-                </svg>
+            {/* ================================================= */}
+            {/* RIGHT SIDE */}
+            {/* ================================================= */}
 
-              </button>
+            <div className="hidden md:flex items-center gap-3">
+
+              {isAuthenticate ? (
+
+                <>
+
+                  {/* USER NAME */}
+
+                  <div className="flex flex-col text-right mr-1">
+                    <span className="text-xs text-slate-400 font-medium">Welcome,</span>
+                    <span className="text-sm font-bold text-slate-800 leading-tight">
+                      {user?.fullname || "User"}
+                    </span>
+                  </div>
+
+                  {/* PROFILE */}
+
+                  <button
+                    onClick={openProfile}
+                    className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 flex items-center justify-center transition-all duration-200 hover:shadow-sm focus:ring-2 focus:ring-blue-500/20"
+                    title="Profile"
+                  >
+
+                    <span className="text-lg">👤</span>
+
+                  </button>
+
+                  {/* NOTIFICATION */}
+
+                  <button
+                    onClick={goNotification}
+                    className="relative w-10 h-10 rounded-full bg-slate-100 border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-slate-600 flex items-center justify-center transition-all duration-200 shadow-2xs focus:ring-2 focus:ring-blue-500/20"
+                    title="Notifications"
+                  >
+
+                    <span className="text-lg">🔔</span>
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-white"></span>
+
+                  </button>
+
+                  {/* LOGOUT */}
+
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 px-4 py-2 text-sm font-semibold border border-red-200/80 text-red-600 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 active:scale-95"
+                  >
+
+                    Logout
+
+                  </button>
+
+                </>
+
+              ) : (
+
+                <>
+
+                  {/* LOGIN */}
+
+                  <button
+                    onClick={goLogin}
+                    className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 rounded-xl hover:bg-slate-100/60 transition-all duration-200"
+                  >
+
+                    Login
+
+                  </button>
+
+                  {/* SIGNUP */}
+
+                  <button
+                    onClick={goSignup}
+                    className="px-5 py-2 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 active:scale-95"
+                  >
+
+                    Sign Up
+
+                  </button>
+
+                </>
+
+              )}
 
             </div>
+
+            {/* ================================================= */}
+            {/* MOBILE BUTTON */}
+            {/* ================================================= */}
+
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none"
+              aria-label="Toggle Menu"
+            >
+
+              <span className="text-2xl leading-none">
+                {isOpen ? "✕" : "☰"}
+              </span>
+
+            </button>
 
           </div>
+
         </div>
 
         {/* ================================================= */}
@@ -287,97 +419,105 @@ export default function Navbar() {
 
         {isOpen && (
 
-          <div className="md:hidden border-t border-slate-100 px-4 pt-3 pb-4 space-y-3 bg-white">
+          <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-xl p-4 space-y-2 shadow-2xl animate-in slide-in-from-top-2 duration-200">
 
-            {/* MOBILE SEARCH */}
+            {isAuthenticate && (
+              <div className="pb-3 border-b border-slate-100 mb-2">
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 bg-slate-100 border border-slate-200/80 rounded-xl text-slate-400 text-sm font-medium"
+                >
+                  🔍 Search jobs...
+                </button>
+              </div>
+            )}
 
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+            <button
+              onClick={() => {
+                nav("/job");
+                setIsOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 font-semibold rounded-xl transition-all"
+            >
+              💼 Jobs
+            </button>
 
-              <div className="relative flex-1">
+            <button
+              onClick={() => {
+                nav("/company");
+                setIsOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 font-semibold rounded-xl transition-all"
+            >
+              🏢 Companies
+            </button>
 
-                <input
-                  type="text"
-                  value={search}
-                  onClick={openSearchModal}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search jobs..."
-                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                />
+            <button
+              onClick={() => {
+                nav("/about");
+                setIsOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 font-semibold rounded-xl transition-all"
+            >
+              ℹ️ About
+            </button>
+
+            {isAuthenticate ? (
+
+              <>
+
+                <div className="pt-2 border-t border-slate-100 my-2"></div>
+
+                <button
+                  onClick={() => {
+                    openProfile();
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 font-semibold rounded-xl transition-all"
+                >
+                  👤 Profile
+                </button>
+
+                <button
+                  onClick={() => {
+                    goNotification();
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 font-semibold rounded-xl transition-all"
+                >
+                  🔔 Notifications
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition-all"
+                >
+                  🚪 Logout
+                </button>
+
+              </>
+
+            ) : (
+
+              <div className="pt-3 border-t border-slate-100 flex flex-col gap-2 mt-2">
+
+                <button
+                  onClick={goLogin}
+                  className="w-full py-3 text-center font-semibold text-blue-600 border border-blue-600/30 bg-blue-50/30 rounded-xl hover:bg-blue-50 transition-all"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={goSignup}
+                  className="w-full py-3 text-center font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all"
+                >
+                  Sign Up
+                </button>
 
               </div>
 
-              <button
-                onClick={openSearchModal}
-                className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
-              >
-
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-
-              </button>
-
-            </div>
-
-            {/* MOBILE LINKS */}
-
-            <a
-              href="/job"
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
-            >
-              Jobs
-            </a>
-
-            <a
-              href="/company"
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
-            >
-              Companies
-            </a>
-
-            <a
-              href="#"
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
-            >
-              Salaries
-            </a>
-
-            <a
-              href="#"
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600"
-            >
-              Career Advice
-            </a>
-
-            {/* MOBILE ACTIONS */}
-
-            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-
-              <a
-                href="/post-job"
-                className="w-full text-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
-              >
-                Post a Job
-              </a>
-
-              <a
-                href="/login"
-                className="w-full text-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
-              >
-                Sign In
-              </a>
-
-            </div>
+            )}
 
           </div>
 
@@ -389,68 +529,48 @@ export default function Navbar() {
       {/* SEARCH MODAL */}
       {/* ================================================= */}
 
-      {isModalOpen && (
+      {isSearchOpen && (
 
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={closeSearchModal}
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setIsSearchOpen(false)}
         >
 
-          {/* MODAL BOX */}
-
           <div
-            className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all"
             onClick={(e) => e.stopPropagation()}
           >
 
-            {/* ================================================= */}
-            {/* MODAL HEADER */}
-            {/* ================================================= */}
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 bg-slate-50/50">
 
-            <div className="flex items-center justify-between p-5 border-b border-slate-200">
-
-              <div>
-
-                <h2 className="text-xl font-bold text-slate-800">
-                  Search Jobs
-                </h2>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  Enter your job preferences
-                </p>
-
-              </div>
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span>🔍</span> Search Jobs
+              </h2>
 
               <button
-                onClick={closeSearchModal}
-                className="w-8 h-8 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800 text-xl"
+                onClick={() => setIsSearchOpen(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 text-xl transition-all"
               >
                 ×
               </button>
 
             </div>
 
-            {/* ================================================= */}
-            {/* MODAL BODY */}
-            {/* ================================================= */}
+            <div className="p-6 space-y-4">
 
-            <div className="p-5 space-y-5">
-
-              {/* JOB TITLE */}
+              {/* JOB */}
 
               <div>
 
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   Job Title
                 </label>
 
                 <input
-                  type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="e.g. MERN Developer"
-                  autoFocus
-                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. MERN Developer, Frontend..."
+                  className="w-full border border-slate-200 p-3 rounded-xl text-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
 
               </div>
@@ -459,14 +579,16 @@ export default function Navbar() {
 
               <div>
 
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Experience
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                  Experience Level
                 </label>
 
                 <select
                   value={experience}
-                  onChange={(e) => setExperience(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setExperience(e.target.value)
+                  }
+                  className="w-full border border-slate-200 p-3 rounded-xl text-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700"
                 >
 
                   <option value="">
@@ -497,58 +619,227 @@ export default function Navbar() {
 
               <div>
 
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   Location
                 </label>
 
                 <input
-                  type="text"
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Kathmandu"
-                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setLocation(e.target.value)
+                  }
+                  placeholder="e.g. Kathmandu, Remote..."
+                  className="w-full border border-slate-200 p-3 rounded-xl text-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
 
               </div>
 
             </div>
 
-            {/* ================================================= */}
-            {/* MODAL FOOTER */}
-            {/* ================================================= */}
-
-            <div className="flex items-center justify-between p-5 bg-slate-50 border-t border-slate-200">
-
-              {/* CLEAR */}
+            <div className="flex justify-end items-center gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
 
               <button
-                onClick={clearSearch}
-                className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg"
+                onClick={() => {
+                  setSearch("");
+                  setExperience("");
+                  setLocation("");
+                }}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 rounded-lg transition-all"
               >
-                Clear
+                Clear Filters
               </button>
 
-              <div className="flex gap-3">
+              <button
+                onClick={() => setIsSearchOpen(false)}
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                Cancel
+              </button>
 
-                {/* CANCEL */}
+              <button
+                onClick={searchJobs}
+                className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all active:scale-95"
+              >
+                Search Jobs
+              </button>
 
-                <button
-                  onClick={closeSearchModal}
-                  className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-100"
-                >
-                  Cancel
-                </button>
+            </div>
 
-                {/* SEARCH */}
+          </div>
 
-                <button
-                  onClick={fetchSearch}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
-                >
-                  Search Jobs
-                </button>
+        </div>
 
-              </div>
+      )}
+
+      {/* ================================================= */}
+      {/* PROFILE SIDE DRAWER */}
+      {/* ================================================= */}
+
+      {isProfileOpen && (
+
+        <div
+          className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200"
+          onClick={() => setIsProfileOpen(false)}
+        >
+
+          <div
+            className="bg-white w-full sm:w-[420px] h-full shadow-2xl overflow-y-auto flex flex-col transform transition-transform duration-300 animate-in slide-in-from-right"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            {/* HEADER */}
+
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50/50">
+
+              <h2 className="text-xl font-bold text-slate-800">
+                My Profile
+              </h2>
+
+              <button
+                onClick={() => setIsProfileOpen(false)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 text-xl transition-all"
+              >
+                ×
+              </button>
+
+            </div>
+
+            {/* BODY */}
+
+            <div className="p-6 flex-1 flex flex-col justify-between">
+
+              {profileLoading ? (
+
+                <div className="text-center py-20 my-auto">
+
+                  <div className="w-10 h-10 mx-auto border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+
+                  <p className="mt-4 text-sm font-medium text-slate-500">
+                    Fetching your profile details...
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="space-y-6">
+
+                  {/* AVATAR */}
+
+                  <div className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-2xl border border-slate-100">
+
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-3xl shadow-md text-white shrink-0">
+                      👤
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+
+                      <h3 className="text-lg font-extrabold text-slate-900 truncate">
+                        {profile?.fullname ||
+                          user?.fullname ||
+                          "User"}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 truncate">
+                        {profile?.email ||
+                          user?.email}
+                      </p>
+
+                      <span className="inline-block mt-2 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/80 rounded-full">
+                        {profile?.role ||
+                          user?.role || "Member"}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                  {/* INFORMATION */}
+
+                  <div className="space-y-3 bg-white p-2 rounded-2xl border border-slate-100 divide-y divide-slate-100">
+
+                    <div className="pt-2 first:pt-0">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Education
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-700 mt-0.5">
+                        {profile?.education ||
+                          user?.education ||
+                          "Not added"}
+                      </p>
+                    </div>
+
+                    <div className="pt-3">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Experience
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-700 mt-0.5">
+                        {profile?.experience ||
+                          user?.experience ||
+                          "Not added"}
+                      </p>
+                    </div>
+
+                    <div className="pt-3">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Skills
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-700 mt-0.5">
+                        {profile?.skill ||
+                          user?.skill ||
+                          "Not added"}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 pb-1">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Location
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-700 mt-0.5">
+                        {profile?.location ||
+                          user?.location ||
+                          "Not added"}
+                      </p>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )}
+
+              {/* BUTTONS */}
+
+              {!profileLoading && (
+                <div className="pt-6 space-y-2 mt-auto">
+
+                  {/* UPDATE */}
+
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      nav("/updateprofile");
+                    }}
+                    className="w-full py-3 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all active:scale-95"
+                  >
+                    Update Profile
+                  </button>
+
+                  {/* LOGOUT */}
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full py-3 text-sm font-semibold border border-red-200 text-red-600 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all active:scale-95"
+                  >
+                    Logout
+                  </button>
+
+                </div>
+              )}
 
             </div>
 
@@ -560,4 +851,6 @@ export default function Navbar() {
 
     </>
   );
-}
+};
+
+export default Navbar;

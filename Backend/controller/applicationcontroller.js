@@ -1,238 +1,183 @@
-import cloudinary from "../config/cloudinary.js";
-import Application from "../models/application.js";
-import Job from "../models/job.js";
-import Notification from "../models/notification.js";
-import { cloudinaryupload } from "../utlis/cloudinaryupload.js";
+import {
+  createApplicationService,
+  getApplicationsService,
+  getSingleApplicationService,
+  updateApplicationService,
+  deleteApplicationService,
+  getEmployerApplicantsService,
+  getMyApplicationsService
+} from "../Services/Applicationservice.js";
 
-export const applicationcreate=async(req,res)=>
-{
-    try {
-        console.log("req.user:", req.user);
-        const {job,coverletter,status}=req.body;
-        const result =await cloudinaryupload(req.file.buffer,"application")
-        console.log(result)
-        const jobdata = await Job.findById(job);
-
-        if (!jobdata) {
-          return res.status(404).json({
-            success: false,
-            message: "Job not found",
-          });
-        } 
-        const alreadyApplied = await Application.findOne({
-          job: job,
-          employe: req.user._id,
-        });
-        
-        if (alreadyApplied) {
-          return res.status(400).json({
-            success: false,
-            message: "You have already applied for this job",
-          });
-        }
-    
-        const application=await Application.create({
-            job,
-            coverletter,
-            status,
-            employe:req.user._id,
-            resume:result.secure_url,
-            public_id:result.public_id,
-        })
-
-        await Notification.create({
-          user: jobdata.employer,
-          message: `${req.user.fullname} applied for your job: ${jobdata.title}`,
-          type: "application",
-    
-        })
-        return res.status(201).json({
-            success:true,
-            message:"applictiob form is created",
-            application
-        })
-        
-    } catch (error) {
-        console.log(error)
-        
-    }
-}
-//all application
-export const getapplication =async(req,res)=>{
-    try {
-        const application =await Application.find().populate("job").populate("employe")
-        if(!application){
-            return res.status(201).json({
-                success:false,
-                message:"application is not found"
-            })
-        }
-        return res.status(201).json({
-            success:true,
-            message:"application get successfully",application
-
-        })
-        
-    } catch (error) {
-        console.log(error)
-        
-    }
-}
-//singleapplication
-
-export const singleapplication =async(req,res)=>{
-    try {
-        const application =await Application.findById(req.params.id).populate("job").populate("employe")
-        if(!application){
-            return res.status(201).json({
-            success:false,
-            message:"not found application"
-            })
-        }
-        return res.status(201).json({
-            success:true,
-            message:"get single data successfully",
-            application
-        })
-        
-    } catch (error) {
-        console.log(error)
-        
-    }
-}
-export const updateapplication = async (req, res) => {
+// CREATE APPLICATION
+export const applicationcreate = async (req, res) => {
   try {
-    const { id } = req.params;
+    const application = await createApplicationService({
+      job: req.body.job,
+      coverletter: req.body.coverletter,
+      status: req.body.status,
+      employe: req.user._id,
+      fullname: req.user.fullname,
+      file: req.file
+    });
 
-    const application = await Application.findById(id);
-
-    if (!application) {
-      return res.status(404).json({
-        success: false,
-        message: "Application not found",
-      });
-    }
-
-    // Update text fields
-   application.status =req.body.status || application.status,
-   application.coverletter =req.body.coverletter || application.coverletter
-    // Update resume if a new file is uploaded
-    if (req.file) {
-      // Delete old resume from Cloudinary
-      if (application.public_id) {
-        await cloudinary.uploader.destroy(application.public_id);
-      }
-
-      // Upload new resume
-      const result = await cloudinaryupload(
-        req.file.buffer,
-        "application",
-      )
-        application.resume =result.secure_url,
-        application.public_id=result.public_id,
-        console.log(result.public_id)
-      
-
-    }
-
-    // Save changes
-    await application.save();
-
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
-      message: "Application updated successfully",
-      application,
+      message: "Application form is created",
+      application
     });
 
   } catch (error) {
     console.error(error);
 
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-export const deleteapplication =async(req,res)=>{
-  try {
-    const application =await Application.findById(req.params.id)
-    if(!application){
-      return res.status(201).json({
-        success:false,
-        message:"cannot found application"
-      })
-    }
-if(application.public_id){
-  await cloudinary.uploader.destroy(application.public_id)
 
-}
-await application.save()
 
-return res.status(201).json({
-  success:true,
-  message:"deleted successfully",
-  application
-})
-    
-  } catch (error) {
-    console.log(error)
-    
-  }
-}
-export const getemployerapplicant =async(req,res)=>{
+// GET ALL APPLICATIONS
+export const getapplication = async (req, res) => {
   try {
-    const job =await Job.find({
-      employer:req.user._id
-    }).select("_id")
-    if(!job){
-      return res.status(201).json({
-        success:false,
-        message:"not found"
-      })
-    }
-    const jobIds = job.map((job) => job._id);
-    const application =await Application.find({
-      job:{$in:jobIds} }).populate("job").populate("employe",'-password').sort({createdAt:-1})
-   
+    const application = await getApplicationsService();
+
     return res.status(200).json({
-      success:true,
-      message:"employer applicant fetch successfully",
-      totalApplicants: application.length,
+      success: true,
+      message: "Application get successfully",
       application
-    })
+    });
 
-    
   } catch (error) {
-    console.log(error)
-    
+    console.error(error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message
+    });
   }
-}
+};
+
+
+// GET SINGLE APPLICATION
+export const singleapplication = async (req, res) => {
+  try {
+    const application = await getSingleApplicationService(
+      req.params.id
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Get single data successfully",
+      application
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// UPDATE APPLICATION
+export const updateapplication = async (req, res) => {
+  try {
+    const application = await updateApplicationService(
+      req.params.id,
+      {
+        status: req.body.status,
+        coverletter: req.body.coverletter,
+        file: req.file
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Application updated successfully",
+      application
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// DELETE APPLICATION
+export const deleteapplication = async (req, res) => {
+  try {
+    await deleteApplicationService(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Deleted successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// GET EMPLOYER APPLICANTS
+export const getemployerapplicant = async (req, res) => {
+  try {
+    const result = await getEmployerApplicantsService(
+      req.user._id
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Employer applicants fetched successfully",
+      totalApplicants: result.length,
+      application: result
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// GET MY APPLICATIONS
 export const getMyApplications = async (req, res) => {
   try {
-    console.log("Logged in user ID:", req.user._id);
-
-    const application = await Application.find({
-      employe: req.user._id,
-    })
-      .populate("job")
-      .sort({ createdAt: -1 });
-
-    console.log("Found applications:", application.length);
-    console.log("Applications:", application);
+    const application = await getMyApplicationsService(
+      req.user._id
+    );
 
     return res.status(200).json({
       success: true,
       message: "My applications fetched successfully",
       totalApplications: application.length,
-      application,
+      application
     });
 
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
