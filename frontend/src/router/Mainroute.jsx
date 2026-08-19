@@ -65,7 +65,10 @@ const Mainroute = () => {
 {/* ===================================== */}
 {/* EMPLOYER ONLY */}
 {/* ===================================== */}
+<Route>
+  <Route path='/allcompany' element={<Allcompany/>}/>
 
+</Route>
 
   {/* Put employer pages here */}
 
