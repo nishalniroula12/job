@@ -46,7 +46,7 @@ const Alljob = () => {
   // ==============================
   useEffect(() => {
     fetchjob();
-  }, [experience, location, jobtype]);
+  }, [experience, location, jobtype, user,isAuthentication]);
 
   return (
     <div className="min-h-screen bg-gray-50">

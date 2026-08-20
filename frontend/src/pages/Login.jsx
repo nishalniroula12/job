@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import api from "../api/axios.js";
-import { logindata } from "../Redux/redux.js";
+import { logindata  } from "../Redux/redux.js";
 
 const Login = () => {
   const dispatch = useDispatch();

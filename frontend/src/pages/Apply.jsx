@@ -12,11 +12,13 @@ import {
 } from "react-icons/fa";
 
 import api from "../api/axios";
-import Navbar from "../components/Navbar";
+import { useSelector } from "react-redux";
 
 const Apply = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticate } = useSelector((state) => state.data);
+
 
   // =====================================================
   // STATES
@@ -160,7 +162,7 @@ const Apply = () => {
     fetchJob();
     fetchRelatedJobs();
     checkApplication();
-  }, [id]);
+  }, [id,isAuthenticate,user]);
 
   // =====================================================
   // POSTED TIME
@@ -355,7 +357,6 @@ const Apply = () => {
   return (
     <div className="min-h-screen bg-[#f5f6f8]">
 
-      <Navbar />
 
       {/* =================================================
           BACK

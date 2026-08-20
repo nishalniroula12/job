@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import api from "../api/axios";
+import { useSelector } from "react-redux";
 
 import {
   FaUser,
@@ -19,7 +20,6 @@ import {
   FaDownload,
   FaTrash,
 } from "react-icons/fa";
-import Navbar from "../components/Navbar";
 
 const Updateprofile = () => {
   // =========================================================
@@ -33,6 +33,7 @@ const Updateprofile = () => {
   const [saving, setSaving] = useState(false);
 
   const [error, setError] = useState("");
+  const { user, isAuthenticate } = useSelector((state) => state.data);
 
   // =========================================================
   // MODAL
@@ -144,7 +145,7 @@ const Updateprofile = () => {
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [user,isAuthenticate]);
 
   // =========================================================
   // HANDLE INPUT
@@ -477,7 +478,6 @@ const Updateprofile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar/>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
 

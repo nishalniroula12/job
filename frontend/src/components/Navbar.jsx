@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 import api from "../api/axios.js";
 import { logoutdata } from "../Redux/redux.js";
 
 const Navbar = () => {
-
   const nav = useNavigate();
   const dispatch = useDispatch();
 
@@ -22,27 +20,18 @@ const Navbar = () => {
     (state) => state.data.user
   );
 
-  console.log("NAVBAR AUTH:", isAuthenticate);
-  console.log("NAVBAR USER:", user);
-
   // ============================================
   // STATES
   // ============================================
 
   const [isOpen, setIsOpen] = useState(false);
-
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
   const [profile, setProfile] = useState(null);
-
   const [profileLoading, setProfileLoading] = useState(false);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [experience, setExperience] = useState("");
-
   const [location, setLocation] = useState("");
 
   // ============================================
@@ -50,19 +39,13 @@ const Navbar = () => {
   // ============================================
 
   const handleLogout = async () => {
-
     try {
-
-      // If you have backend logout route
       await api.post("/logout");
-
     } catch (error) {
-
       console.log(
         "Logout API error:",
         error.response?.data || error.message
       );
-
     }
 
     dispatch(logoutdata());
@@ -71,7 +54,6 @@ const Navbar = () => {
     setIsProfileOpen(false);
 
     nav("/");
-
   };
 
   // ============================================
@@ -79,11 +61,8 @@ const Navbar = () => {
   // ============================================
 
   const goLogin = () => {
-
     setIsOpen(false);
-
     nav("/login");
-
   };
 
   // ============================================
@@ -91,11 +70,8 @@ const Navbar = () => {
   // ============================================
 
   const goSignup = () => {
-
     setIsOpen(false);
-
     nav("/signup");
-
   };
 
   // ============================================
@@ -103,27 +79,18 @@ const Navbar = () => {
   // ============================================
 
   const openProfile = async () => {
-
     if (!isAuthenticate) {
-
       nav("/login");
-
       return;
-
     }
 
     setIsProfileOpen(true);
-
     setProfileLoading(true);
 
     try {
-
       const response = await api.get("/profile");
 
-      console.log(
-        "PROFILE RESPONSE:",
-        response.data
-      );
+      console.log("PROFILE RESPONSE:", response.data);
 
       const userData =
         response.data?.user ||
@@ -132,20 +99,11 @@ const Navbar = () => {
         response.data;
 
       setProfile(userData);
-
     } catch (error) {
-
-      console.error(
-        "PROFILE ERROR:",
-        error
-      );
-
+      console.error("PROFILE ERROR:", error);
     } finally {
-
       setProfileLoading(false);
-
     }
-
   };
 
   // ============================================
@@ -153,40 +111,23 @@ const Navbar = () => {
   // ============================================
 
   const searchJobs = () => {
-
     const params = new URLSearchParams();
 
     if (search.trim()) {
-
-      params.append(
-        "keyword",
-        search.trim()
-      );
-
+      params.append("keyword", search.trim());
     }
 
     if (experience) {
-
-      params.append(
-        "experience",
-        experience
-      );
-
+      params.append("experience", experience);
     }
 
     if (location.trim()) {
-
-      params.append(
-        "location",
-        location.trim()
-      );
-
+      params.append("location", location.trim());
     }
 
     setIsSearchOpen(false);
 
     nav(`/alljob?${params.toString()}`);
-
   };
 
   // ============================================
@@ -194,19 +135,13 @@ const Navbar = () => {
   // ============================================
 
   const goNotification = () => {
-
     if (!isAuthenticate) {
-
       nav("/login");
-
       return;
-
     }
 
     setIsOpen(false);
-
     nav("/notification");
-
   };
 
   return (
@@ -216,10 +151,9 @@ const Navbar = () => {
       {/* ================================================= */}
 
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all duration-300">
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="h-16 flex items-center justify-between gap-4 md:gap-8">
+          <div className="h-16 flex items-center justify-between gap-4 md:gap-6">
 
             {/* ================================================= */}
             {/* LOGO */}
@@ -229,7 +163,6 @@ const Navbar = () => {
               onClick={() => nav("/")}
               className="flex items-center gap-2.5 group shrink-0 focus:outline-none"
             >
-
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
                 <span className="text-xl">
                   💼
@@ -242,7 +175,6 @@ const Navbar = () => {
                   Sphere
                 </span>
               </span>
-
             </button>
 
             {/* ================================================= */}
@@ -275,11 +207,10 @@ const Navbar = () => {
             </div>
 
             {/* ================================================= */}
-            {/* SEARCH BUTTON (TRIGGER) */}
+            {/* SEARCH BUTTON */}
             {/* ================================================= */}
 
             {isAuthenticate && (
-
               <div className="hidden md:flex flex-1 max-w-md">
 
                 <button
@@ -288,7 +219,10 @@ const Navbar = () => {
                 >
 
                   <div className="flex items-center gap-2.5">
-                    <span className="text-slate-400 group-hover:scale-110 transition-transform">🔍</span>
+                    <span className="text-slate-400 group-hover:scale-110 transition-transform">
+                      🔍
+                    </span>
+
                     <span className="text-sm font-medium">
                       Search jobs...
                     </span>
@@ -301,23 +235,24 @@ const Navbar = () => {
                 </button>
 
               </div>
-
             )}
 
             {/* ================================================= */}
             {/* RIGHT SIDE */}
             {/* ================================================= */}
 
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2 shrink-0">
 
               {isAuthenticate ? (
 
                 <>
-
                   {/* USER NAME */}
 
-                  <div className="flex flex-col text-right mr-1">
-                    <span className="text-xs text-slate-400 font-medium">Welcome,</span>
+                  <div className="hidden xl:flex flex-col text-right mr-1">
+                    <span className="text-xs text-slate-400 font-medium">
+                      Welcome,
+                    </span>
+
                     <span className="text-sm font-bold text-slate-800 leading-tight">
                       {user?.fullname || "User"}
                     </span>
@@ -330,9 +265,9 @@ const Navbar = () => {
                     className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 flex items-center justify-center transition-all duration-200 hover:shadow-sm focus:ring-2 focus:ring-blue-500/20"
                     title="Profile"
                   >
-
-                    <span className="text-lg">👤</span>
-
+                    <span className="text-lg">
+                      👤
+                    </span>
                   </button>
 
                   {/* NOTIFICATION */}
@@ -342,49 +277,123 @@ const Navbar = () => {
                     className="relative w-10 h-10 rounded-full bg-slate-100 border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-slate-600 flex items-center justify-center transition-all duration-200 shadow-2xs focus:ring-2 focus:ring-blue-500/20"
                     title="Notifications"
                   >
+                    <span className="text-lg">
+                      🔔
+                    </span>
 
-                    <span className="text-lg">🔔</span>
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-white"></span>
-
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-white">
+                    </span>
                   </button>
 
                   {/* LOGOUT */}
 
                   <button
                     onClick={handleLogout}
-                    className="ml-2 px-4 py-2 text-sm font-semibold border border-red-200/80 text-red-600 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 active:scale-95"
+                    className="ml-1 px-4 py-2 text-sm font-semibold border border-red-200/80 text-red-600 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 active:scale-95"
                   >
-
                     Logout
-
                   </button>
-
                 </>
 
               ) : (
 
                 <>
-
-                  {/* LOGIN */}
+                  {/* ================================================= */}
+                  {/* CUSTOM LOGIN BUTTON */}
+                  {/* ================================================= */}
 
                   <button
                     onClick={goLogin}
-                    className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 rounded-xl hover:bg-slate-100/60 transition-all duration-200"
+                    aria-label="User Login Button"
+                    className="
+                      group
+                      w-[131px]
+                      h-[51px]
+                      rounded-[15px]
+                      cursor-pointer
+                      flex
+                      items-center
+                      justify-center
+                      bg-[linear-gradient(to_bottom_right,#2e8eff_0%,rgba(46,142,255,0)_30%)]
+                      bg-[rgba(46,142,255,0.2)]
+                      transition-all
+                      duration-300
+                      ease-in-out
+                      hover:bg-[rgba(46,142,255,0.7)]
+                      hover:shadow-[0_0_10px_rgba(46,142,255,0.5)]
+                      focus:outline-none
+                      focus:bg-[rgba(46,142,255,0.7)]
+                      focus:shadow-[0_0_10px_rgba(46,142,255,0.5)]
+                    "
                   >
 
-                    Login
+                    <div
+                      className="
+                        w-[127px]
+                        h-[47px]
+                        rounded-[13px]
+                        bg-[#1a1a1a]
+                        flex
+                        items-center
+                        justify-center
+                        gap-[15px]
+                        text-white
+                        font-semibold
+                      "
+                    >
+
+                      <svg
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        className="w-[27px] h-[27px] fill-white"
+                      >
+                        <g
+                          data-name="Layer 2"
+                          id="Layer_2"
+                        >
+                          <path
+                            d="m15.626 11.769a6 6 0 1 0 -7.252 0 9.008 9.008 0 0 0 -5.374 8.231 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 9.008 9.008 0 0 0 -5.374-8.231zm-7.626-4.769a4 4 0 1 1 4 4 4 4 0 0 1 -4-4zm10 14h-12a1 1 0 0 1 -1-1 7 7 0 0 1 14 0 1 1 0 0 1 -1 1z"
+                          />
+                        </g>
+                      </svg>
+
+                      <span className="text-sm">
+                        Log In
+                      </span>
+
+                    </div>
 
                   </button>
 
-                  {/* SIGNUP */}
+                  {/* ================================================= */}
+                  {/* SIGN UP */}
+                  {/* ================================================= */}
 
                   <button
                     onClick={goSignup}
-                    className="px-5 py-2 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 active:scale-95"
+                    className="
+                      px-5
+                      py-3
+                      text-sm
+                      font-semibold
+                      bg-gradient-to-r
+                      from-blue-600
+                      to-indigo-600
+                      text-white
+                      rounded-xl
+                      hover:from-blue-700
+                      hover:to-indigo-700
+                      shadow-md
+                      shadow-blue-500/20
+                      hover:shadow-lg
+                      hover:shadow-blue-500/30
+                      transition-all
+                      duration-200
+                      active:scale-95
+                    "
                   >
-
                     Sign Up
-
                   </button>
 
                 </>
@@ -402,15 +411,12 @@ const Navbar = () => {
               className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none"
               aria-label="Toggle Menu"
             >
-
               <span className="text-2xl leading-none">
                 {isOpen ? "✕" : "☰"}
               </span>
-
             </button>
 
           </div>
-
         </div>
 
         {/* ================================================= */}
@@ -418,19 +424,24 @@ const Navbar = () => {
         {/* ================================================= */}
 
         {isOpen && (
+          <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-xl p-4 space-y-2 shadow-2xl">
 
-          <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-xl p-4 space-y-2 shadow-2xl animate-in slide-in-from-top-2 duration-200">
+            {/* MOBILE SEARCH */}
 
             {isAuthenticate && (
               <div className="pb-3 border-b border-slate-100 mb-2">
+
                 <button
                   onClick={() => setIsSearchOpen(true)}
                   className="w-full flex items-center gap-3 px-4 py-2.5 bg-slate-100 border border-slate-200/80 rounded-xl text-slate-400 text-sm font-medium"
                 >
                   🔍 Search jobs...
                 </button>
+
               </div>
             )}
+
+            {/* JOBS */}
 
             <button
               onClick={() => {
@@ -442,6 +453,8 @@ const Navbar = () => {
               💼 Jobs
             </button>
 
+            {/* COMPANIES */}
+
             <button
               onClick={() => {
                 nav("/company");
@@ -451,6 +464,8 @@ const Navbar = () => {
             >
               🏢 Companies
             </button>
+
+            {/* ABOUT */}
 
             <button
               onClick={() => {
@@ -462,11 +477,14 @@ const Navbar = () => {
               ℹ️ About
             </button>
 
+            {/* AUTHENTICATED MOBILE MENU */}
+
             {isAuthenticate ? (
 
               <>
-
                 <div className="pt-2 border-t border-slate-100 my-2"></div>
+
+                {/* PROFILE */}
 
                 <button
                   onClick={() => {
@@ -478,6 +496,8 @@ const Navbar = () => {
                   👤 Profile
                 </button>
 
+                {/* NOTIFICATION */}
+
                 <button
                   onClick={() => {
                     goNotification();
@@ -488,39 +508,84 @@ const Navbar = () => {
                   🔔 Notifications
                 </button>
 
+                {/* LOGOUT */}
+
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition-all"
                 >
                   🚪 Logout
                 </button>
-
               </>
 
             ) : (
 
-              <div className="pt-3 border-t border-slate-100 flex flex-col gap-2 mt-2">
+              <>
+                <div className="pt-3 border-t border-slate-100 flex flex-col gap-3 mt-2">
 
-                <button
-                  onClick={goLogin}
-                  className="w-full py-3 text-center font-semibold text-blue-600 border border-blue-600/30 bg-blue-50/30 rounded-xl hover:bg-blue-50 transition-all"
-                >
-                  Login
-                </button>
+                  {/* MOBILE LOGIN */}
 
-                <button
-                  onClick={goSignup}
-                  className="w-full py-3 text-center font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all"
-                >
-                  Sign Up
-                </button>
+                  <button
+                    onClick={goLogin}
+                    className="
+                      w-full
+                      h-[52px]
+                      rounded-[15px]
+                      flex
+                      items-center
+                      justify-center
+                      bg-[linear-gradient(to_bottom_right,#2e8eff_0%,rgba(46,142,255,0)_30%)]
+                      bg-[rgba(46,142,255,0.2)]
+                      transition-all
+                      duration-300
+                      hover:bg-[rgba(46,142,255,0.7)]
+                      hover:shadow-[0_0_10px_rgba(46,142,255,0.5)]
+                    "
+                  >
+                    <div
+                      className="
+                        w-[calc(100%-4px)]
+                        h-[48px]
+                        rounded-[13px]
+                        bg-[#1a1a1a]
+                        flex
+                        items-center
+                        justify-center
+                        gap-3
+                        text-white
+                        font-semibold
+                      "
+                    >
+                      <svg
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 fill-white"
+                      >
+                        <path
+                          d="m15.626 11.769a6 6 0 1 0 -7.252 0 9.008 9.008 0 0 0 -5.374 8.231 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 9.008 9.008 0 0 0 -5.374-8.231zm-7.626-4.769a4 4 0 1 1 4 4 4 4 0 0 1 -4-4zm10 14h-12a1 1 0 0 1 -1-1 7 7 0 0 1 14 0 1 1 0 0 1 -1 1z"
+                        />
+                      </svg>
 
-              </div>
+                      Log In
+                    </div>
+                  </button>
+
+                  {/* MOBILE SIGN UP */}
+
+                  <button
+                    onClick={goSignup}
+                    className="w-full py-3 text-center font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all"
+                  >
+                    Sign Up
+                  </button>
+
+                </div>
+              </>
 
             )}
 
           </div>
-
         )}
 
       </nav>
@@ -530,21 +595,23 @@ const Navbar = () => {
       {/* ================================================= */}
 
       {isSearchOpen && (
-
         <div
           className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setIsSearchOpen(false)}
         >
 
           <div
-            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all"
+            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
+
+            {/* HEADER */}
 
             <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 bg-slate-50/50">
 
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🔍</span> Search Jobs
+                <span>🔍</span>
+                Search Jobs
               </h2>
 
               <button
@@ -556,9 +623,11 @@ const Navbar = () => {
 
             </div>
 
+            {/* BODY */}
+
             <div className="p-6 space-y-4">
 
-              {/* JOB */}
+              {/* JOB TITLE */}
 
               <div>
 
@@ -585,9 +654,7 @@ const Navbar = () => {
 
                 <select
                   value={experience}
-                  onChange={(e) =>
-                    setExperience(e.target.value)
-                  }
+                  onChange={(e) => setExperience(e.target.value)}
                   className="w-full border border-slate-200 p-3 rounded-xl text-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700"
                 >
 
@@ -625,9 +692,7 @@ const Navbar = () => {
 
                 <input
                   value={location}
-                  onChange={(e) =>
-                    setLocation(e.target.value)
-                  }
+                  onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. Kathmandu, Remote..."
                   className="w-full border border-slate-200 p-3 rounded-xl text-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
@@ -636,7 +701,11 @@ const Navbar = () => {
 
             </div>
 
-            <div className="flex justify-end items-center gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+            {/* FOOTER */}
+
+            <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+
+              {/* CLEAR */}
 
               <button
                 onClick={() => {
@@ -649,12 +718,16 @@ const Navbar = () => {
                 Clear Filters
               </button>
 
+              {/* CANCEL */}
+
               <button
                 onClick={() => setIsSearchOpen(false)}
                 className="px-4 py-2.5 text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-100 rounded-xl transition-all"
               >
                 Cancel
               </button>
+
+              {/* SEARCH */}
 
               <button
                 onClick={searchJobs}
@@ -668,7 +741,6 @@ const Navbar = () => {
           </div>
 
         </div>
-
       )}
 
       {/* ================================================= */}
@@ -676,14 +748,13 @@ const Navbar = () => {
       {/* ================================================= */}
 
       {isProfileOpen && (
-
         <div
-          className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200"
+          className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200"
           onClick={() => setIsProfileOpen(false)}
         >
 
           <div
-            className="bg-white w-full sm:w-[420px] h-full shadow-2xl overflow-y-auto flex flex-col transform transition-transform duration-300 animate-in slide-in-from-right"
+            className="bg-white w-full sm:w-[420px] h-full shadow-2xl overflow-y-auto flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
 
@@ -712,7 +783,8 @@ const Navbar = () => {
 
                 <div className="text-center py-20 my-auto">
 
-                  <div className="w-10 h-10 mx-auto border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-10 h-10 mx-auto border-4 border-blue-600 border-t-transparent rounded-full animate-spin">
+                  </div>
 
                   <p className="mt-4 text-sm font-medium text-slate-500">
                     Fetching your profile details...
@@ -747,7 +819,8 @@ const Navbar = () => {
 
                       <span className="inline-block mt-2 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/80 rounded-full">
                         {profile?.role ||
-                          user?.role || "Member"}
+                          user?.role ||
+                          "Member"}
                       </span>
 
                     </div>
@@ -758,7 +831,10 @@ const Navbar = () => {
 
                   <div className="space-y-3 bg-white p-2 rounded-2xl border border-slate-100 divide-y divide-slate-100">
 
-                    <div className="pt-2 first:pt-0">
+                    {/* EDUCATION */}
+
+                    <div className="pt-2">
+
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                         Education
                       </p>
@@ -768,9 +844,13 @@ const Navbar = () => {
                           user?.education ||
                           "Not added"}
                       </p>
+
                     </div>
 
+                    {/* EXPERIENCE */}
+
                     <div className="pt-3">
+
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                         Experience
                       </p>
@@ -780,9 +860,13 @@ const Navbar = () => {
                           user?.experience ||
                           "Not added"}
                       </p>
+
                     </div>
 
+                    {/* SKILLS */}
+
                     <div className="pt-3">
+
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                         Skills
                       </p>
@@ -792,9 +876,13 @@ const Navbar = () => {
                           user?.skill ||
                           "Not added"}
                       </p>
+
                     </div>
 
+                    {/* LOCATION */}
+
                     <div className="pt-3 pb-1">
+
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                         Location
                       </p>
@@ -804,6 +892,7 @@ const Navbar = () => {
                           user?.location ||
                           "Not added"}
                       </p>
+
                     </div>
 
                   </div>
@@ -815,9 +904,10 @@ const Navbar = () => {
               {/* BUTTONS */}
 
               {!profileLoading && (
+
                 <div className="pt-6 space-y-2 mt-auto">
 
-                  {/* UPDATE */}
+                  {/* UPDATE PROFILE */}
 
                   <button
                     onClick={() => {
@@ -839,6 +929,7 @@ const Navbar = () => {
                   </button>
 
                 </div>
+
               )}
 
             </div>
@@ -846,7 +937,6 @@ const Navbar = () => {
           </div>
 
         </div>
-
       )}
 
     </>

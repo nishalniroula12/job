@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axios";
-import Navbar from "../components/Navbar.jsx";
-
+import { useSelector } from "react-redux";
 import {
   Bell,
   BellRing,
@@ -15,6 +14,8 @@ import {
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, isAuthenticate } = useSelector((state) => state.data);
+
 
   // Fetch notifications
   const fetchNotification = async () => {
@@ -36,7 +37,7 @@ const Notification = () => {
 
   useEffect(() => {
     fetchNotification();
-  }, []);
+  }, [user,isAuthenticate]);
 
   // Notification icon
   const getNotificationIcon = (type) => {
@@ -93,7 +94,6 @@ const Notification = () => {
     <div className="min-h-screen bg-slate-50">
 
       {/* Navbar */}
-      <Navbar />
 
       {/* Main Content */}
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">

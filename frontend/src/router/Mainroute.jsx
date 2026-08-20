@@ -10,6 +10,7 @@ import Updateprofile from '../pages/Updateprofile';
 import Apply from '../pages/Apply';
 import Notification from '../pages/Notification';
 import Protectedroute from '../components/Protectedroute';
+import Mainlayout from '../components/Mainlayout'
 
 const Mainroute = () => {
   return (
@@ -19,7 +20,7 @@ const Mainroute = () => {
 {/* ===================================== */}
 {/* PUBLIC ROUTES */}
 {/* ===================================== */}
-
+<Route element={<Mainlayout/>}>
 <Route path="/" element={<Home />} />
 
 
@@ -30,6 +31,7 @@ const Mainroute = () => {
 <Route path="/alljob" element={<Alljob />} />
 
 <Route path="/login" element={<Login />} />
+</Route>
 
 
 
@@ -38,6 +40,7 @@ const Mainroute = () => {
 {/* ===================================== */}
 
 <Route element={<Protectedroute />}>
+<Route element={<Mainlayout/>}>
 
   <Route
     path="/profile"
@@ -60,13 +63,13 @@ const Mainroute = () => {
   />
 
 </Route>
+</Route>
 
 
 {/* ===================================== */}
 {/* EMPLOYER ONLY */}
 {/* ===================================== */}
 <Route>
-  <Route path='/allcompany' element={<Allcompany/>}/>
 
 </Route>
 
