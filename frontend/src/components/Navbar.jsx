@@ -15,6 +15,7 @@ const Navbar = () => {
   const isAuthenticate = useSelector(
     (state) => state.data.isAuthenticate
   );
+  console.log(isAuthenticate)
 
   const user = useSelector(
     (state) => state.data.user

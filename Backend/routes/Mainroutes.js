@@ -80,6 +80,7 @@ import {
 // ======================================================
 
 import {
+  getallusers,
   getprofile,
   logoutuser,
   signin,
@@ -110,6 +111,7 @@ const router = express.Router();
 
 // Register
 router.post("/register", userregister);
+router.get('/users' ,getallusers)
 
 // Login
 router.post("/login", signin);

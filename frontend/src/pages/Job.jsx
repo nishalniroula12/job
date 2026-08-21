@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import {
   FaBriefcase,
@@ -14,7 +15,6 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import api from "../api/axios";
-import Navbar from "../components/Navbar";
 
 const Job = () => {
   const navigate = useNavigate();
@@ -22,6 +22,7 @@ const Job = () => {
   // =========================================
   // JOB STATE
   // =========================================
+  const { user, isAuthenticate } = useSelector((state) => state.data);
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +66,7 @@ const Job = () => {
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [user,isAuthenticate]);
 
   // =========================================
   // TAB CHANGE

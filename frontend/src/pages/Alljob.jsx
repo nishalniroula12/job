@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Alljob = () => {
   const [job, setJob] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, isAuthenticate } = useSelector((state) => state.data);
+
 
   // Filters
   const [experience, setExperience] = useState("");
@@ -46,7 +49,7 @@ const Alljob = () => {
   // ==============================
   useEffect(() => {
     fetchjob();
-  }, [experience, location, jobtype, user,isAuthentication]);
+  }, [experience, location, jobtype, user,isAuthenticate]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -270,3 +270,19 @@ export const updateprofile = asynchandling(async (req, res) => {
         user: updateprofile
     });
 });
+export const getallusers = asynchandling(async (req, res) => {
+    const users = await User.find().select("-password");
+
+    if (!users || users.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "No users found"
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        message: "Users fetched successfully",
+        users
+    });
+});    

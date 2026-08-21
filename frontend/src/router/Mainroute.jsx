@@ -29,9 +29,10 @@ const Mainroute = () => {
 <Route path="/company" element={<Company />} />
 
 <Route path="/alljob" element={<Alljob />} />
-
 <Route path="/login" element={<Login />} />
+
 </Route>
+
 
 
 
@@ -60,9 +61,10 @@ const Mainroute = () => {
   <Route
     path="/notification"
     element={<Notification />}
-  />
 
-</Route>
+  />
+  </Route>
+
 </Route>
 
 

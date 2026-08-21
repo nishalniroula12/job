@@ -58,6 +58,7 @@ const Login = () => {
       // ============================================
 
       const user = response.data.user;
+      console.log(response.data.token)
 
       console.log("Logged in user:", user);
 
@@ -69,7 +70,8 @@ const Login = () => {
       // ============================================
       // STORE USER IN REDUX
       // ============================================
-
+      
+      // Redux
       dispatch(logindata(user));
 
       // ============================================
