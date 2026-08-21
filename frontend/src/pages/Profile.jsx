@@ -14,11 +14,9 @@ import {
 } from "react-icons/fa";
 
 import api from "../api/axios.js";
-import { useSelector } from "react-redux";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticate } = useSelector((state) => state.data);
   const [profile, setProfile] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +96,7 @@ const Profile = () => {
   useEffect(() => {
     fetchProfile();
     fetchJobs();
-  }, [user,isAuthenticate]);
+  }, []);
 
   // =========================================
   // LOADING

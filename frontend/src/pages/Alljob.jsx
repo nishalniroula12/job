@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -58,7 +57,6 @@ const Alljob = () => {
       {/* NAVBAR */}
       {/* ========================= */}
 
-      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
 

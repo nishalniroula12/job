@@ -11,6 +11,7 @@ import Apply from '../pages/Apply';
 import Notification from '../pages/Notification';
 import Protectedroute from '../components/Protectedroute';
 import Mainlayout from '../components/Mainlayout'
+import Dashboard from '../pages/employer/Dashboard';
 
 const Mainroute = () => {
   return (
@@ -71,8 +72,11 @@ const Mainroute = () => {
 {/* ===================================== */}
 {/* EMPLOYER ONLY */}
 {/* ===================================== */}
+<Route element={<Mainlayout/>}>
 <Route>
+  <Route path='/dashboard' element={<Dashboard/>}/>
 
+</Route>
 </Route>
 
   {/* Put employer pages here */}
