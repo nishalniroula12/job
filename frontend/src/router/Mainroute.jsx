@@ -12,6 +12,7 @@ import Notification from '../pages/Notification';
 import Protectedroute from '../components/Protectedroute';
 import Mainlayout from '../components/Mainlayout'
 import Dashboard from '../pages/employer/Dashboard';
+import Allcompany from '../pages/employer/Allcompany';
 
 const Mainroute = () => {
   return (
@@ -72,11 +73,10 @@ const Mainroute = () => {
 {/* ===================================== */}
 {/* EMPLOYER ONLY */}
 {/* ===================================== */}
-<Route element={<Mainlayout/>}>
 <Route>
   <Route path='/dashboard' element={<Dashboard/>}/>
+  <Route path='/allcompany' element={<Allcompany/>}/>
 
-</Route>
 </Route>
 
   {/* Put employer pages here */}

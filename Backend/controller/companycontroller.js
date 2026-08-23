@@ -147,7 +147,8 @@ export const updatecompany = async (req, res) => {
   
 }
 }
-export const deletecompany=async(req,res)=>{
+
+export const deletecompanies=async(req,res)=>{
   try {
     const company =await Company.findById(req.params.id)
     if(!company){
@@ -158,7 +159,7 @@ export const deletecompany=async(req,res)=>{
       })
     }
     await cloudinary.uploader.destroy(company.public_id);
-    await Company.findByIdAndDelete(id);
+    await Company.findByIdAndDelete(req.params.id);
 
     return res.status(200).json({
         success: true,

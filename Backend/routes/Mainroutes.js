@@ -34,7 +34,7 @@ import {
 
 import {
   createcompany,
-  deletecompany as deleteCompanyFromCompanyController,
+  deletecompanies,
   getcompany,
   updatecompany,
 } from "../controller/companycontroller.js";
@@ -174,8 +174,8 @@ router.put(
 
 // Delete company
 router.delete(
-  "/companydelete",
-  deleteCompanyFromCompanyController
+  "/companydelete/:id",
+  deletecompanies
 );
 
 
