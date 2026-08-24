@@ -122,7 +122,7 @@ const Sidebar = () => {
                   <PlusCircle className="w-3.5 h-3.5" />
                   <span>Post Job</span>
                 </NavLink>
-                <NavLink to="/all-jobs" className={subNavItemClass}>
+                <NavLink to="/all-job" className={subNavItemClass}>
                   <List className="w-3.5 h-3.5" />
                   <span>Manage Jobs</span>
                 </NavLink>
@@ -137,7 +137,7 @@ const Sidebar = () => {
           </NavLink>
 
           {/* PROFILE */}
-          <NavLink to="/employer." className={navItemClass}>
+          <NavLink to="/profileemploye" className={navItemClass}>
             <User className="w-4 h-4" />
             <span>Profile</span>
           </NavLink>

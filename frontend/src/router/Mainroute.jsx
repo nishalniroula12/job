@@ -15,6 +15,8 @@ import Dashboard from '../pages/employer/Dashboard';
 import Allcompany from '../pages/employer/Allcompany';
 import Applicant from '../pages/employer/Applicant';
 import View from '../pages/employer/View';
+import Employerprofile from '../pages/employer/Employerprofile';
+import Alljobs from '../pages/employer/Alljobs';
 
 const Mainroute = () => {
   return (
@@ -82,6 +84,8 @@ const Mainroute = () => {
   <Route path='/view' element={<View/>}/>
 
   <Route path='/view/:id' element={<View/>}/>
+  <Route path='/profileemploye' element={<Employerprofile/>}/>
+  <Route path='/all-job' element={<Alljobs/>}/>
 
 </Route>
 
