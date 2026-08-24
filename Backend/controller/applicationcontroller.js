@@ -136,23 +136,25 @@ export const deleteapplication = async (req, res) => {
 // GET EMPLOYER APPLICANTS
 export const getemployerapplicant = async (req, res) => {
   try {
-    const result = await getEmployerApplicantsService(
-      req.user._id
-    );
+    const userId = req.user._id;
+
+    console.log("Employer ID:", userId);
+
+    const applications = await getApplicationsService(userId);
 
     return res.status(200).json({
       success: true,
       message: "Employer applicants fetched successfully",
-      totalApplicants: result.length,
-      application: result
+      totalApplicants: applications.length,
+      applications,
     });
 
   } catch (error) {
-    console.error(error);
+    console.log("GET EMPLOYER APPLICATION ERROR:", error);
 
-    return res.status(error.statusCode || 500).json({
+    return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };

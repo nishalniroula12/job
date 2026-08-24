@@ -78,16 +78,24 @@ export const createApplicationService = async ({
 // ======================================================
 // GET ALL APPLICATIONS
 // ======================================================
+export const getApplicationsService = async (userId) => {
+  // Find jobs created by this employer
+  const jobs = await Job.find({
+    employer: userId
+  });
 
-export const getApplicationsService = async () => {
+  const jobIds = jobs.map((job) => job._id);
 
-  const application = await Application.find()
+  // Find applications for those jobs
+  const applications = await Application.find({
+    job: { $in: jobIds }
+  })
+    .populate("employe")
     .populate("job")
-    .populate("employe");
+    .sort({ createdAt: -1 });
 
-  return application;
+  return applications;
 };
-
 
 // ======================================================
 // GET SINGLE APPLICATION

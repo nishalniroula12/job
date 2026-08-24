@@ -13,6 +13,8 @@ import Protectedroute from '../components/Protectedroute';
 import Mainlayout from '../components/Mainlayout'
 import Dashboard from '../pages/employer/Dashboard';
 import Allcompany from '../pages/employer/Allcompany';
+import Applicant from '../pages/employer/Applicant';
+import View from '../pages/employer/View';
 
 const Mainroute = () => {
   return (
@@ -76,6 +78,10 @@ const Mainroute = () => {
 <Route>
   <Route path='/dashboard' element={<Dashboard/>}/>
   <Route path='/allcompany' element={<Allcompany/>}/>
+  <Route path='/applicant' element={<Applicant/>}/>
+  <Route path='/view' element={<View/>}/>
+
+  <Route path='/view/:id' element={<View/>}/>
 
 </Route>
 

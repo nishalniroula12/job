@@ -131,13 +131,13 @@ const Sidebar = () => {
           </div>
 
           {/* APPLICANTS */}
-          <NavLink to="/applicants" className={navItemClass}>
+          <NavLink to="/applicant" className={navItemClass}>
             <Users className="w-4 h-4" />
             <span>Applicants</span>
           </NavLink>
 
           {/* PROFILE */}
-          <NavLink to="/profile" className={navItemClass}>
+          <NavLink to="/employer." className={navItemClass}>
             <User className="w-4 h-4" />
             <span>Profile</span>
           </NavLink>
