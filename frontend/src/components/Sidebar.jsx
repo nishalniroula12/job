@@ -118,7 +118,7 @@ const Sidebar = () => {
             {/* JOBS SUB-MENU */}
             {jobsOpen && (
               <div className="ml-7 mt-1 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 pl-2">
-                <NavLink to="/post-job" className={subNavItemClass}>
+                <NavLink to="/managejob" className={subNavItemClass}>
                   <PlusCircle className="w-3.5 h-3.5" />
                   <span>Post Job</span>
                 </NavLink>

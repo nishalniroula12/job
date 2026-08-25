@@ -174,3 +174,27 @@ export const deletecompanies=async(req,res)=>{
     });
 }
 };
+export const getSingleCompany = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const company = await Company.findById(id);
+
+    if (!company) {
+      return res.status(404).json({
+        message: "Company not found",
+      });
+    }
+
+    res.status(200).json({
+      company,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Failed to get company",
+    });
+  }
+};

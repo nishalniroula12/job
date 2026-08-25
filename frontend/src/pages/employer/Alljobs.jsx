@@ -10,6 +10,12 @@ import {
   Save,
   Briefcase,
   AlertTriangle,
+  Eye,
+  MapPin,
+  Clock,
+  DollarSign,
+  Building,
+  BriefcaseBusiness,
 } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 
@@ -20,9 +26,7 @@ const Alljobs = () => {
   const { user, isAuthenticate } = useSelector((state) => state.data);
   const navigator = useNavigate();
 
-  // =========================================
   // EDIT STATE
-  // =========================================
   const [editOpen, setEditOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [editData, setEditData] = useState({
@@ -36,16 +40,16 @@ const Alljobs = () => {
   });
   const [updating, setUpdating] = useState(false);
 
-  // =========================================
   // DELETE STATE
-  // =========================================
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteJob, setDeleteJob] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // =========================================
+  // VIEW STATE
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewJob, setViewJob] = useState(null);
+
   // FETCH JOBS
-  // =========================================
   const fetchjob = async () => {
     try {
       setLoading(true);
@@ -63,9 +67,13 @@ const Alljobs = () => {
     fetchjob();
   }, [user, isAuthenticate]);
 
-  // =========================================
+  // VIEW HANDLER
+  const openViewModal = (item) => {
+    setViewJob(item);
+    setViewOpen(true);
+  };
+
   // EDIT HANDLERS
-  // =========================================
   const openEditModal = (item) => {
     setSelectedJob(item);
     setEditData({
@@ -115,9 +123,7 @@ const Alljobs = () => {
     }
   };
 
-  // =========================================
   // DELETE HANDLERS
-  // =========================================
   const openDeleteModal = (item) => {
     setDeleteJob(item);
     setDeleteOpen(true);
@@ -140,187 +146,415 @@ const Alljobs = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* SIDEBAR NAVIGATION */}
+    <div className="flex min-h-screen bg-gray-50/50">
       <Sidebar />
 
-      {/* MAIN CONTENT AREA */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-6 flex items-center justify-between">
+          {/* HEADER AREA */}
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">All Jobs</h1>
-              <p className="text-sm text-gray-500">
-                Manage and view all active job listings
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                All Jobs
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Manage, inspect, and update your active listings
               </p>
             </div>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
-              Total: {job.length}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 sm:text-sm">
+                Total Jobs: {job.length}
+              </span>
+            </div>
           </div>
 
           {/* LOADING STATE */}
           {loading && (
-            <div className="rounded-xl border bg-white p-12 text-center shadow-sm">
+            <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
               <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-              <p className="mt-3 text-sm text-gray-500">Loading jobs table...</p>
+              <p className="mt-3 text-sm text-gray-500">Loading listings...</p>
             </div>
           )}
 
           {/* EMPTY STATE */}
           {!loading && job.length === 0 && (
-            <div className="rounded-xl border bg-white p-12 text-center shadow-sm">
+            <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
               <Briefcase size={40} className="mx-auto text-gray-300" />
               <h2 className="mt-4 text-lg font-semibold text-gray-800">
-                No jobs found
+                No listings found
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                There are currently no posted jobs available.
+                You currently have no active job positions available.
               </p>
             </div>
           )}
 
-          {/* DATA TABLE */}
+          {/* MAIN LISTINGS AREA */}
           {!loading && job.length > 0 && (
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-600">
-                  <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-700">
-                    <tr>
-                      <th scope="col" className="px-6 py-4">
-                        Job Title & Company
-                      </th>
-                      <th scope="col" className="px-6 py-4">
-                        Type
-                      </th>
-                      <th scope="col" className="px-6 py-4">
-                        Location
-                      </th>
-                      <th scope="col" className="px-6 py-4">
-                        Experience
-                      </th>
-                      <th scope="col" className="px-6 py-4">
-                        Salary Range
-                      </th>
-                      <th scope="col" className="px-6 py-4">
-                        Skills
-                      </th>
-                      <th scope="col" className="px-6 py-4 text-center">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {job.map((item) => (
-                      <tr
-                        key={item._id}
-                        className="transition hover:bg-gray-50/50"
-                      >
-                        {/* TITLE & COMPANY */}
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          <div
+            <>
+              {/* MOBILE CARD VIEW (Shown on smaller screens) */}
+              <div className="grid grid-cols-1 gap-4 lg:hidden">
+                {job.map((item) => (
+                  <div
+                    key={item._id}
+                    className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3
                             onClick={() => navigator(`/apply/${item._id}`)}
-                            className="cursor-pointer font-bold hover:text-blue-600"
+                            className="cursor-pointer text-base font-bold text-gray-900 hover:text-blue-600"
                           >
                             {item.title}
-                          </div>
+                          </h3>
                           {item.company?.name && (
-                            <div className="text-xs text-gray-500">
+                            <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
+                              <Building size={14} />
                               {item.company.name}
                             </div>
                           )}
-                        </td>
+                        </div>
+                        {item.jobtype && (
+                          <span className="shrink-0 rounded-full bg-purple-50 px-2.5 py-1 text-xs font-semibold capitalize text-purple-700">
+                            {item.jobtype}
+                          </span>
+                        )}
+                      </div>
 
-                        {/* JOB TYPE */}
-                        <td className="px-6 py-4">
-                          {item.jobtype ? (
-                            <span className="inline-block rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium capitalize text-purple-700">
-                              {item.jobtype}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">N/A</span>
-                          )}
-                        </td>
-
-                        {/* LOCATION */}
-                        <td className="px-6 py-4">
-                          {item.location || (
-                            <span className="text-gray-400">N/A</span>
-                          )}
-                        </td>
-
-                        {/* EXPERIENCE */}
-                        <td className="px-6 py-4">
-                          {item.experience || (
-                            <span className="text-gray-400">N/A</span>
-                          )}
-                        </td>
-
-                        {/* SALARY */}
-                        <td className="px-6 py-4">
+                      <div className="mt-4 grid grid-cols-2 gap-2 border-y border-gray-100 py-3 text-xs text-gray-600">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin size={14} className="text-gray-400" />
+                          <span className="truncate">{item.location || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-gray-400" />
+                          <span className="truncate">{item.experience || "N/A"}</span>
+                        </div>
+                        <div className="col-span-2 flex items-center gap-1.5 font-medium text-green-700">
+                          <DollarSign size={14} className="text-green-600" />
                           {item.salary ? (
-                            <span className="font-medium text-green-700">
+                            <span>
                               ${item.salary.min || 0} - ${item.salary.max || 0}
                             </span>
                           ) : (
-                            <span className="text-gray-400">N/A</span>
+                            <span className="text-gray-400 font-normal">N/A</span>
                           )}
-                        </td>
+                        </div>
+                      </div>
 
-                        {/* SKILLS */}
-                        <td className="px-6 py-4">
-                          <div className="flex max-w-xs flex-wrap gap-1">
-                            {Array.isArray(item.skill) ? (
-                              item.skill.map((s, idx) => (
-                                <span
-                                  key={idx}
-                                  className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
-                                >
-                                  {s}
-                                </span>
-                              ))
-                            ) : item.skill ? (
-                              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                                {item.skill}
+                      {/* SKILLS CHIPS */}
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {Array.isArray(item.skill) ? (
+                          item.skill.map((s, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600"
+                            >
+                              {s}
+                            </span>
+                          ))
+                        ) : item.skill ? (
+                          <span className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                            {item.skill}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="mt-4 flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
+                      <button
+                        onClick={() => openViewModal(item)}
+                        title="Quick View"
+                        className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+                      >
+                        <Eye size={15} />
+                        View
+                      </button>
+                      <button
+                        onClick={() => navigator(`/managejob/${item._id}`)}
+                        title="Edit Job"
+                        className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:bg-blue-100"
+                      >
+                        <Pencil size={15} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(item)}
+                        title="Delete Job"
+                        className="flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                      >
+                        <Trash2 size={15} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP TABLE VIEW (Shown on larger screens) */}
+              <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:block">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-gray-600">
+                    <thead className="border-b border-gray-200 bg-gray-50/70 text-xs font-semibold uppercase tracking-wider text-gray-600">
+                      <tr>
+                        <th scope="col" className="px-6 py-4">
+                          Job Details
+                        </th>
+                        <th scope="col" className="px-6 py-4">
+                          Type
+                        </th>
+                        <th scope="col" className="px-6 py-4">
+                          Location
+                        </th>
+                        <th scope="col" className="px-6 py-4">
+                          Experience
+                        </th>
+                        <th scope="col" className="px-6 py-4">
+                          Salary Range
+                        </th>
+                        <th scope="col" className="px-6 py-4">
+                          Required Skills
+                        </th>
+                        <th scope="col" className="px-6 py-4 text-center">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {job.map((item) => (
+                        <tr
+                          key={item._id}
+                          className="transition hover:bg-gray-50/70"
+                        >
+                          {/* TITLE & COMPANY */}
+                          <td className="px-6 py-4 font-medium text-gray-900">
+                            <div
+                              onClick={() => navigator(`/apply/${item._id}`)}
+                              className="cursor-pointer font-bold text-gray-900 hover:text-blue-600"
+                            >
+                              {item.title}
+                            </div>
+                            {item.company?.name && (
+                              <div className="text-xs text-gray-500">
+                                {item.company.name}
+                              </div>
+                            )}
+                          </td>
+
+                          {/* JOB TYPE */}
+                          <td className="px-6 py-4">
+                            {item.jobtype ? (
+                              <span className="inline-block rounded-full bg-purple-50 px-2.5 py-1 text-xs font-semibold capitalize text-purple-700">
+                                {item.jobtype}
                               </span>
                             ) : (
                               <span className="text-gray-400">N/A</span>
                             )}
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* ACTIONS - ALWAYS SHOWN */}
-                        <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => openEditModal(item)}
-                              title="Edit Job"
-                              className="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
-                            >
-                              <Pencil size={18} />
-                            </button>
-                            <button
-                              onClick={() => openDeleteModal(item)}
-                              title="Delete Job"
-                              className="rounded-lg p-2 text-red-600 transition hover:bg-red-50"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          {/* LOCATION */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.location || (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </td>
+
+                          {/* EXPERIENCE */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.experience || (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </td>
+
+                          {/* SALARY */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.salary ? (
+                              <span className="font-semibold text-green-700">
+                                ${item.salary.min || 0} - ${item.salary.max || 0}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </td>
+
+                          {/* SKILLS */}
+                          <td className="px-6 py-4">
+                            <div className="flex max-w-xs flex-wrap gap-1">
+                              {Array.isArray(item.skill) ? (
+                                item.skill.map((s, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                                  >
+                                    {s}
+                                  </span>
+                                ))
+                              ) : item.skill ? (
+                                <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                                  {item.skill}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">N/A</span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* ACTIONS */}
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                onClick={() => openViewModal(item)}
+                                title="View Details"
+                                className="rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                              >
+                                <Eye size={18} />
+                              </button>
+                              <button
+                                onClick={() => navigator(`/managejob/${item._id}`)}
+                                title="Edit Job"
+                                className="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
+                              >
+                                <Pencil size={18} />
+                              </button>
+                              <button
+                                onClick={() => openDeleteModal(item)}
+                                title="Delete Job"
+                                className="rounded-lg p-2 text-red-600 transition hover:bg-red-50"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </main>
 
+      {/* QUICK VIEW MODAL */}
+      {viewOpen && viewJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b px-6 py-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {viewJob.title}
+                </h2>
+                {viewJob.company?.name && (
+                  <p className="text-sm font-medium text-blue-600">
+                    {viewJob.company.name}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setViewOpen(false)}
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] space-y-4 overflow-y-auto p-6 text-sm text-gray-600">
+              <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
+                <div>
+                  <span className="block text-xs font-semibold uppercase text-gray-400">
+                    Job Type
+                  </span>
+                  <span className="font-medium capitalize text-gray-800">
+                    {viewJob.jobtype || "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-semibold uppercase text-gray-400">
+                    Vacancies
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    {viewJob.vacancy || "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-semibold uppercase text-gray-400">
+                    Location
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    {viewJob.location || "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-semibold uppercase text-gray-400">
+                    Experience
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    {viewJob.experience || "N/A"}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  Description
+                </h4>
+                <p className="mt-1 whitespace-pre-line text-gray-700">
+                  {viewJob.description || "No description provided."}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  Skills Required
+                </h4>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {Array.isArray(viewJob.skill) ? (
+                    viewJob.skill.map((s, idx) => (
+                      <span
+                        key={idx}
+                        className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+                      >
+                        {s}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                      {viewJob.skill || "N/A"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t bg-gray-50 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setViewOpen(false)}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewOpen(false);
+                  navigator(`/apply/${viewJob._id}`);
+                }}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Go to Application Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* EDIT MODAL */}
       {editOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b px-6 py-4">
               <div>
@@ -474,7 +708,7 @@ const Alljobs = () => {
 
       {/* DELETE MODAL */}
       {deleteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <AlertTriangle size={24} className="text-red-600" />

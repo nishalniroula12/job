@@ -36,6 +36,7 @@ import {
   createcompany,
   deletecompanies,
   getcompany,
+  getSingleCompany,
   updatecompany,
 } from "../controller/companycontroller.js";
 
@@ -165,6 +166,7 @@ router.post(
 // Get all companies
 router.get("/get", getcompany);
 
+router.get("/getcompany/:id", getSingleCompany);
 // Update company
 router.put(
   "/editcompany/:id",
