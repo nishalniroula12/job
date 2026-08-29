@@ -19,6 +19,7 @@ import Employerprofile from '../pages/employer/Employerprofile';
 import Alljobs from '../pages/employer/Alljobs';
 import AddCompany from '../pages/employer/AddCompany';
 import Managejob from '../pages/employer/Managejob';
+import Admindash from '../pages/admin/Admindash';
 
 const Mainroute = () => {
   return (
@@ -94,6 +95,10 @@ const Mainroute = () => {
   <Route path='/all-job/:id' element={<Alljobs/>}/>
   <Route path='/managejob' element={<Managejob/>}/>
   <Route path='/managejob/:id' element={<Managejob/>}/>
+
+</Route>
+<Route>
+  <Route path='/admin' element={<Admindash/>}/>
 
 </Route>
 

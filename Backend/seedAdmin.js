@@ -19,7 +19,8 @@ await connectdatabase()
     const admin =new User({
         fullname:'admin',
         email:"admin@gmail.com",
-        password:hashpassword
+        password:hashpassword,
+        role:"admin"
     })
     await admin.save()
     console.log("admin created")
