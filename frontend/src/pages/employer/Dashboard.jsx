@@ -27,7 +27,7 @@ const Dashboard = () => {
 
       setjob(res.data.jobs || []);
       setcompany(c.data.company || []);
-      setread(n.data.notifications || []);
+      setread(n.data.notification || []);
     } catch (error) {
       console.log(error);
     } finally {
